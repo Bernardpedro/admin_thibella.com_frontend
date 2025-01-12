@@ -1,4 +1,5 @@
 <template>
+  <div class="js-myIndexPage">
   <div class="bg-white">
     <div class="relative isolate overflow-hidden bg-gray-900 py-24 sm:py-32">
       <img
@@ -417,6 +418,10 @@
         <!-- More products... -->
       </div>
     </div>
+  </div>
+  <div v-if="showComponent">
+    <SignInForm />
+  </div>
   </div>
 </template>
 <script>
