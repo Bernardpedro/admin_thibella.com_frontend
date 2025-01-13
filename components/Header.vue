@@ -59,7 +59,7 @@
 
               <div class="space-y-6 border-t border-gray-200 px-4 py-6">
                 <div class="flow-root">
-                  <a href="#" class="-m-2 block p-2 font-medium text-gray-900" @click.prevent="showSignIn">Sign in</a>
+                  <a href="./SignInForm.vue" class="-m-2 block p-2 font-medium text-gray-900" @click="display=true">Sign in</a>
                 </div>
                 <div class="flow-root">
                   <a href="#" class="-m-2 block p-2 font-medium text-gray-900">Create account</a>
@@ -154,9 +154,6 @@
       </nav>
     </header>
   </div>
-  <div v-if="showComponent">
-    <SignInForm />
-  </div>
 </template>
 
 <script setup>
@@ -191,13 +188,7 @@ const navigation = {
 }
 
 const open = ref(false)
-const showComponent = ref(false)
+const display = ref(false)
 
-const showSignIn = () => {
-  const mainContent = document.querySelector('.js-myIndexPage')
-  if (mainContent) {
-    showComponent.value = true
-    mainContent.innerHTML = ''
-  }
-}
+
 </script>
