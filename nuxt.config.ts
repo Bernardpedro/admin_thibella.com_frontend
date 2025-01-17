@@ -1,6 +1,8 @@
-export default defineNuxtConfig({
-  // Add the CSS file
+export default defineNuxtConfig(
+  {
+   components: true,
   css: ['@/assets/css/tailwind.css'],
+
   vite: {
     css: {
       postcss: {
@@ -8,6 +10,7 @@ export default defineNuxtConfig({
       },
     },
   },
+
   app: {
     head: {
       title: 'My Nuxt 3 App',
@@ -15,5 +18,27 @@ export default defineNuxtConfig({
     },
   },
 
-  compatibilityDate: '2025-01-11',
-});
+  modules: [
+    '@nuxtjs/i18n',
+    'nuxt-icon'
+  ],
+
+  i18n: {
+    locales: [
+      {
+        code: 'en',
+        file: 'en.json'
+      },
+      {
+        code: 'rw',
+        file: 'rw.json'
+      }
+    ],
+    lazy: true,
+    langDir: 'lang',
+    defaultLocale: 'rw',
+    strategy: 'no_prefix'
+  },
+
+  compatibilityDate: '2025-01-16'
+})

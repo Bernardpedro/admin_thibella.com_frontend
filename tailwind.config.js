@@ -4,9 +4,12 @@ module.exports = {
     './components/**/*.{vue,js}',
     './layouts/**/*.{vue,js}',
     './plugins/**/*.{js,ts}', // Include plugins if necessary
+    './node_modules/flowbite/**/*.js'
   ],
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('flowbite/plugin'),
+  ],
 }
