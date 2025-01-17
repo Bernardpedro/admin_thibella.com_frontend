@@ -1,7 +1,9 @@
 <template>
   <div :class="{ dark: isDarkMode }">
     <div>
-      <!-- <BlackFriday /> -->
+      <!-- Moved DiscountPopUp here so it can overlay the navbar -->
+      <DiscountPopUp/>
+      
       <div class="bg-white dark:bg-gray-900">
         <!-- Mobile menu -->
         <TransitionRoot as="template" :show="open">
@@ -9,12 +11,10 @@
         </TransitionRoot>
 
         <header class="relative bg-white dark:bg-gray-900">
-          <nav
-            aria-label="Top"
-            class="mx-auto max-w-9xl px-4 sm:px-6 lg:px-8"
-          >
+          <nav aria-label="Top" class="mx-auto max-w-9xl px-4 sm:px-6 lg:px-8">
             <div class="border-b border-gray-200 dark:border-gray-700">
               <div class="flex h-16 items-center">
+                <!-- Mobile menu button -->
                 <button
                   type="button"
                   class="relative rounded-md bg-white p-2 text-gray-400 dark:bg-gray-800 dark:text-gray-300 lg:hidden"
@@ -46,11 +46,11 @@
                       v-slot="{ open }"
                     >
                       <PopoverButton
-                        :class="[
-                          open
-                            ? 'border-indigo-600 text-indigo-600'
-                            : 'border-transparent text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400',
-                          'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out',
+                        :class="[ 
+                          open 
+                            ? 'border-indigo-600 text-indigo-600' 
+                            : 'border-transparent text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400', 
+                          'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out' 
                         ]"
                       >
                         {{ category.name }}
@@ -67,6 +67,7 @@
                   </div>
                 </PopoverGroup>
 
+                <!-- Right Side -->
                 <div class="ml-auto flex items-center">
                   <!-- Dark Mode Toggle -->
                   <div class="mr-4">
@@ -79,19 +80,17 @@
                     </button>
                   </div>
 
-                  <!-- Other Header Items -->
-                  <div
-                    class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6"
-                  >
+                  <!-- Sign In / Create Account -->
+                  <div class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                     <a
-                      href="/LogIn"
+                      href="/Login"
                       class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
                       >Sign in</a
                     >
                     <span
                       class="h-6 w-px bg-gray-200 dark:bg-gray-700"
                       aria-hidden="true"
-                    />
+                    ></span>
                     <a
                       href="/CreateAccount"
                       class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
@@ -99,14 +98,25 @@
                     >
                   </div>
 
+                  <!-- Language Selector -->
+                  <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-6">
+                    <div class="-m-2 flex items-center p-2">
+                      <select
+                        v-model="$i18n.locale"
+                        @change="switchLanguage"
+                        class="ml-3 block text-base font-medium text-gray-900 dark:text-gray-300 bg-transparent border-none cursor-pointer"
+                      >
+                        <option value="en">{{ $t("language.english") }}</option>
+                        <option value="rw">{{ $t("language.kinyarwanda") }}</option>
+                      </select>
+                    </div>
+                  </div>
+
                   <!-- Search -->
                   <div class="flex lg:ml-6">
                     <a href="#" class="p-2 text-gray-400 hover:text-gray-500">
                       <span class="sr-only">Search</span>
-                      <MagnifyingGlassIcon
-                        class="size-6"
-                        aria-hidden="true"
-                      />
+                      <MagnifyingGlassIcon class="size-6" aria-hidden="true" />
                     </a>
                   </div>
 
@@ -136,6 +146,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted } from "vue";
 import {
@@ -145,6 +156,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { Popover, PopoverButton, PopoverGroup } from "@headlessui/vue";
 import BlackFriday from "./BlackFriday.vue";
+import DiscountPopUp from "./DiscountPopUp.vue";
 
 const navigation = {
   categories: [],
@@ -179,9 +191,12 @@ onMounted(() => {
     }
   }
 });
+
+// Language Switcher Logic
+const { locale } = useI18n();
+const switchLanguage = (event) => {
+  const newLocale = event.target.value;
+  locale.value = newLocale;
+  localStorage.setItem("user-locale", newLocale);
+};
 </script>
-
-
-<style>
-/* Add base dark mode styles for Tailwind's dark mode class */
-</style>
