@@ -29,8 +29,8 @@
                   <a href="#">
                     <span class="sr-only">Your Company</span>
                     <img
-                      class="h-8 w-auto"
-                      src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
+                      class="h-8 w-auto rounded-full"
+                      src="assets/img/IRA-LOGO-ORGINAL.jpg"
                       alt=""
                     />
                   </a>
@@ -123,7 +123,7 @@
                   <!-- Cart -->
                   <div class="ml-4 flow-root lg:ml-6">
                     <a
-                      href="#"
+                      href="/CheckOutPage"
                       class="group -m-2 flex items-center p-2 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-400"
                     >
                       <ShoppingBagIcon

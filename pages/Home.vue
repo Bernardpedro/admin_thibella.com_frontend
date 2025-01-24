@@ -1,48 +1,11 @@
 <template>
   <div :class="{ dark: isDarkMode }">
     <div class="bg-white dark:bg-gray-900">
-      <FilterComponent />
+      <!-- <FilterComponent /> -->
       <FlowbiteCarousel />
-      <PromoSection />
+      <ProductsList/>
 
-      <div
-        class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8"
-      >
-        <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-200">
-          Customers also purchased
-        </h2>
-
-        <div
-          class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"
-        >
-          <div class="group relative" v-for="i in 4" :key="i">
-            <img
-              src="https://tailwindui.com/plus/img/ecommerce-images/product-page-01-related-product-01.jpg"
-              alt="Front of men&#039;s Basic Tee in black."
-              class="aspect-square w-full rounded-md bg-gray-200 dark:bg-gray-800 object-cover group-hover:opacity-75 lg:aspect-auto lg:h-80"
-            />
-            <div class="mt-4 flex justify-between">
-              <div>
-                <h3 class="text-sm text-gray-700 dark:text-gray-300">
-                  <a href="#">
-                    <span aria-hidden="true" class="absolute inset-0"></span>
-                    Basic Tee
-                  </a>
-                </h3>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Black
-                </p>
-              </div>
-              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                $35
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <AllCategories />
-
+      <!-- products filter -->
       <div class="mx-auto max-w-7xl px-1 lg:px-8">
         <div class="mx-auto max-w-9xl lg:mx-0">
           <div
@@ -50,52 +13,40 @@
           >
             <ul class="flex flex-wrap -mb-px">
               <li class="me-2">
-                <span
-                  @click="
-                    tab = tab === 1 ? 0 : 1;
-                    resetTab('Women');
-                  "
+                <button
+                  @click="handleTabClick(1, 'Women')"
                   :class="getTabClasses(isClickedWomen)"
                   :aria-current="isClickedWomen ? 'page' : null"
                 >
                   Women
-                </span>
+                </button>
               </li>
               <li class="me-2">
-                <span
-                  @click="
-                    tab = tab === 2 ? 0 : 2;
-                    resetTab('Men');
-                  "
+                <button
+                  @click="handleTabClick(2, 'Men')"
                   :class="getTabClasses(isClickedMen)"
                   :aria-current="isClickedMen ? 'page' : null"
                 >
                   Men
-                </span>
+                </button>
               </li>
               <li class="me-2">
-                <span
-                  @click="
-                    tab = tab === 3 ? 0 : 3;
-                    resetTab('Kids');
-                  "
+                <button
+                  @click="handleTabClick(3, 'Kids')"
                   :class="getTabClasses(isClickedKids)"
                   :aria-current="isClickedKids ? 'page' : null"
                 >
                   Kids
-                </span>
+                </button>
               </li>
               <li class="me-2">
-                <span
-                  @click="
-                    tab = tab === 4 ? 0 : 4;
-                    resetTab('Accessories');
-                  "
+                <button
+                  @click="handleTabClick(4, 'Accessories')"
                   :class="getTabClasses(isClickedAccessories)"
                   :aria-current="isClickedAccessories ? 'page' : null"
                 >
                   Accessories
-                </span>
+                </button>
               </li>
             </ul>
           </div>
@@ -115,16 +66,32 @@
     <div v-if="tab === 4">
       <ProductsAccessories />
     </div>
+    <AllCategories/>
   </div>
 </template>
 
 <script>
-import PromoSection from '~/components/PromoSection.vue';
 import FlowbiteCarousel from '~/components/FlowbiteCarousel.vue';
 import FilterComponent from '~/components/FilterComponent.vue';
+import ProductsList from '~/components/ProductsList.vue';
+import Women from '~/components/Women.vue';
+import Men from '~/components/Men.vue';
+import Kids from '~/components/Kids.vue';
+import ProductsAccessories from '~/components/ProductsAccessories.vue';
 import AllCategories from '~/components/AllCategories.vue';
 
 export default {
+  name: 'TabComponent',
+  components: {
+    FlowbiteCarousel,
+    FilterComponent,
+    ProductsList,
+    Women,
+    Men,
+    Kids,
+    ProductsAccessories,
+    AllCategories
+  },
   props: {
     isDarkMode: {
       type: Boolean,
@@ -145,6 +112,18 @@ export default {
     };
   },
   methods: {
+    handleTabClick(tabNumber, tabName) {
+      // Set the tab number
+      this.tab = this.tab === tabNumber ? 0 : tabNumber;
+      
+      // Reset the tabs if we're activating a tab
+      if (this.tab !== 0) {
+        this.resetTab(tabName);
+      } else {
+        // If we're deactivating a tab, reset all tabs to false
+        this.resetTab('');
+      }
+    },
     resetTab(tabName) {
       this.isClickedMen = tabName === 'Men';
       this.isClickedWomen = tabName === 'Women';
@@ -153,9 +132,9 @@ export default {
     },
     getTabClasses(isClicked) {
       return {
-        'inline-block p-4 border-b-2 border-blue-600 rounded-t-lg dark:text-blue-500':
+        'inline-block p-4 border-b-2 border-blue-600 rounded-t-lg dark:text-blue-500 cursor-pointer':
           isClicked,
-        'inline-block p-4 text-gray-400 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400':
+        'inline-block p-4 text-gray-400 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400 cursor-pointer':
           !isClicked,
       };
     },

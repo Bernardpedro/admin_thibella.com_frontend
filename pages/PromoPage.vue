@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PromoSection from '~/components/PromoSection.vue';
+import PromoSection from '~/components/ProductsList.vue';
 
 definePageMeta({
   PromoPage: 'PromoPage'
