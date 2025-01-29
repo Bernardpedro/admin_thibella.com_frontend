@@ -2,7 +2,7 @@
   <div :class="{ dark: isDarkMode }">
     <div>
       <!-- Moved DiscountPopUp here so it can overlay the navbar -->
-      <DiscountPopUp/>
+      <!-- <DiscountPopUp/> -->
       
       <div class="bg-white dark:bg-gray-900">
         <!-- Mobile menu -->
@@ -75,8 +75,9 @@
                       @click="toggleDarkMode"
                       class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
                     >
-                      <span v-if="isDarkMode">☀️</span>
-                      <span v-else>🌙</span>
+                     
+                    
+
                     </button>
                   </div>
 
@@ -123,7 +124,7 @@
                   <!-- Cart -->
                   <div class="ml-4 flow-root lg:ml-6">
                     <a
-                      href="/CheckOutPage"
+                      href="/ShoppingCartP"
                       class="group -m-2 flex items-center p-2 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-400"
                     >
                       <ShoppingBagIcon

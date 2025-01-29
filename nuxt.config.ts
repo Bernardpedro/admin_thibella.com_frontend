@@ -1,44 +1,48 @@
 export default defineNuxtConfig(
   {
-   components: true,
-  css: ['@/assets/css/tailwind.css'],
+    components: true,
+    css: ['@/assets/css/tailwind.css'],
 
-  vite: {
-    css: {
-      postcss: {
-        plugins: [require('tailwindcss'), require('autoprefixer')],
+    vite: {
+      css: {
+        postcss: {
+          plugins: [require('tailwindcss'), require('autoprefixer')],
+        },
       },
     },
-  },
 
-  app: {
-    head: {
-      title: 'My Nuxt 3 App',
-      meta: [{ name: 'description', content: 'A Nuxt 3 project using Options API' }],
-    },
-  },
-
-  modules: [
-    '@nuxtjs/i18n',
-    'nuxt-icon'
-  ],
-
-  i18n: {
-    locales: [
-      {
-        code: 'en',
-        file: 'en.json'
+    app: {
+      head: {
+        title: 'My Nuxt 3 App',
+        meta: [{ name: 'description', content: 'A Nuxt 3 project using Options API' }],
       },
-      {
-        code: 'rw',
-        file: 'rw.json'
-      }
+    },
+
+    modules: [
+      '@nuxtjs/i18n',
+      'nuxt-icon'
     ],
-    lazy: true,
-    langDir: 'lang',
-    defaultLocale: 'rw',
-    strategy: 'no_prefix'
-  },
 
-  compatibilityDate: '2025-01-16'
-})
+    i18n: {
+      locales: [
+        {
+          code: 'en',
+          file: 'en.json'
+        },
+        {
+          code: 'rw',
+          file: 'rw.json'
+        }
+      ],
+      lazy: true,
+      langDir: 'lang',
+      defaultLocale: 'rw',
+      strategy: 'no_prefix'
+    },
+
+    compatibilityDate: '2025-01-16',
+
+    devtools: {
+      enabled: true
+    }
+  })

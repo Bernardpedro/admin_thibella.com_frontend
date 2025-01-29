@@ -2,7 +2,7 @@
 import AvailableProducts from '~/components/AvailableProducts.vue';
 
 definePageMeta({
-  AvailableProductsPage:'AvailableProductsPage'
+  layout:'empty'
 })
 
 </script>
