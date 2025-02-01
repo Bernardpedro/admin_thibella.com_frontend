@@ -1,8 +1,7 @@
 <template>
-  <div :class="{ dark: isDarkMode }">
+  <div :class="{ dark: isDarkMode }" class="bg-white dark:bg-gray-900">
     <div class="bg-white dark:bg-gray-900">
-      <sorting/>
-      <FilterComponent />
+      <!-- <FilterComponent /> -->
       <FlowbiteCarousel />
       <ProductsList/>
 

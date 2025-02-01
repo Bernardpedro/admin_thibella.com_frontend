@@ -2,7 +2,6 @@
   <div :class="{ dark: isDarkMode }">
     <div class="bg-white dark:bg-gray-900">
       <!-- <FilterComponent /> -->
-       <sorting/>
       <FlowbiteCarousel />
       <ProductsList/>
 

@@ -40,7 +40,7 @@ export default defineNuxtConfig(
       strategy: 'no_prefix'
     },
 
-    compatibilityDate: '2025-01-16',
+    compatibilityDate: '2025-02-01',
 
     devtools: {
       enabled: true

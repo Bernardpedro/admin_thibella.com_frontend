@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ dark: isDarkMode }">
+  <div :class="{ dark: isDarkMode }" class="bg-white dark:bg-gray-900">
     <div>
       <!-- Moved DiscountPopUp here so it can overlay the navbar -->
       <!-- <DiscountPopUp/> -->
@@ -115,7 +115,7 @@
 
                   <!-- Search -->
                   <div class="flex lg:ml-6">
-                    <a href="#" class="p-2 text-gray-400 hover:text-gray-500">
+                    <a href="/products/searchProduct" class="p-2 text-gray-400 hover:text-gray-500">
                       <span class="sr-only">Search</span>
                       <MagnifyingGlassIcon class="size-6" aria-hidden="true" />
                     </a>
@@ -143,6 +143,7 @@
             </div>
           </nav>
         </header>
+        <Sorting/>
       </div>
     </div>
   </div>
