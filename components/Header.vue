@@ -17,7 +17,7 @@
                 <!-- Mobile menu button -->
                 <button
                   type="button"
-                  class="relative rounded-md bg-white p-2 text-gray-400 dark:bg-gray-800 dark:text-gray-300 lg:hidden"
+                  class="absolute rounded-md bg-white p-2 text-gray-400 dark:bg-gray-800 dark:text-gray-300 lg:hidden"
                   @click="open = true"
                 >
                   <span class="sr-only">Open menu</span>
@@ -84,14 +84,25 @@
                   <!-- Sign In / Create Account -->
                   <div class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                     <a
-                      href="/Login"
+                      href="/account/Facebook" @mouseover="showDropdown" @mouseleave="closeDropdown"
                       class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
                       >Sign in</a
                     >
+
+                    <!-- Dropdown Menu -->
+                      <div 
+                      v-if="open2" 
+                      @mouseover="cancelClose" 
+                      @mouseleave="closeDropdown"
+                class="absolute right-[calc(42px+260px)] mt-[175px] w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-0 z-10"
+                    >
+                      <LoginDropdown/>
+                    </div>
                     <span
                       class="h-6 w-px bg-gray-200 dark:bg-gray-700"
                       aria-hidden="true"
                     ></span>
+                      
                     <a
                       href="/CreateAccount"
                       class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
@@ -127,10 +138,10 @@
                       href="/ShoppingCartP"
                       class="group -m-2 flex items-center p-2 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-400"
                     >
-                      <ShoppingBagIcon
+                      <img src="assets/img/Accessories/images/icons/cart-icon.png" alt="cart-icon"
                         class="size-6 shrink-0"
-                        aria-hidden="true"
-                      />
+                        aria-hidden="true">
+                      
                       <span
                         class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
                         >0</span
@@ -144,6 +155,7 @@
           </nav>
         </header>
         <Sorting/>
+        
       </div>
     </div>
   </div>
@@ -159,6 +171,8 @@ import {
 import { Popover, PopoverButton, PopoverGroup } from "@headlessui/vue";
 import BlackFriday from "./BlackFriday.vue";
 import DiscountPopUp from "./DiscountPopUp.vue";
+import AuthDropdown from "./AccountComp/AuthDropdown.vue";
+import LoginDropdown from "./AccountComp/loginDropdown.vue";
 
 const navigation = {
   categories: [],
@@ -201,4 +215,25 @@ const switchLanguage = (event) => {
   locale.value = newLocale;
   localStorage.setItem("user-locale", newLocale);
 };
+
+const open2 = ref(false);
+let timeout = null;
+
+// Open dropdown on hover
+const showDropdown = () => {
+  open2.value = true;
+};
+
+// Close dropdown with a delay
+const closeDropdown = () => {
+  timeout = setTimeout(() => {
+    open2.value = false;
+  }, 300);
+};
+
+// Cancel closing when hovering back
+const cancelClose = () => {
+  clearTimeout(timeout);
+};
+
 </script>
