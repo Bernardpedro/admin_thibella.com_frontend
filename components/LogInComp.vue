@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import FacebookLogin from './FacebookLogin.vue';
 
+
+import { ref } from 'vue';
+
 </script>
 
 

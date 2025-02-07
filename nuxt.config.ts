@@ -20,8 +20,13 @@ export default defineNuxtConfig(
 
     modules: [
       '@nuxtjs/i18n',
-      'nuxt-icon'
+      'nuxt-icon',
+      "@pinia/nuxt",
     ],
+    
+    imports: {
+      dirs: ["stores"], // Auto-import stores
+    },
 
     i18n: {
       locales: [

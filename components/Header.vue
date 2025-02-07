@@ -1,4 +1,5 @@
 <template>
+ 
   <div :class="{ dark: isDarkMode }" class="bg-white dark:bg-gray-900">
     <div>
       <!-- Moved DiscountPopUp here so it can overlay the navbar -->
@@ -75,9 +76,7 @@
                       @click="toggleDarkMode"
                       class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
                     >
-                     
-                    
-
+                                         
                     </button>
                   </div>
 
@@ -94,7 +93,7 @@
                       v-if="open2" 
                       @mouseover="cancelClose" 
                       @mouseleave="closeDropdown"
-                class="absolute right-[calc(42px+260px)] mt-[175px] w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-0 z-10"
+                class="absolute right-[calc(42px+280px)] mt-[175px] w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-0 z-10"
                     >
                       <LoginDropdown/>
                     </div>
@@ -150,6 +149,13 @@
                     </a>
                   </div>
                 </div>
+                  <div class="ml-[20px]">
+                    <img v-if="userStore.user?.picture?.data?.url" 
+                    :src="userStore.user.picture.data.url" 
+                    alt="User Profile" 
+                    class="w-[50px] h-[50px] ml-[2px] rounded-full">
+               
+                 </div>
               </div>
             </div>
           </nav>
@@ -163,19 +169,29 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useUserStore } from "@/stores/user"; // ✅ Import Pinia store
+
+const userStore = useUserStore(); // ✅ Initialize store
+
+// Debugging: Check if userStore is defined
+console.log("User Store:", userStore);
+console.log("User:", userStore.user);
+
 import {
   Bars3Icon,
   MagnifyingGlassIcon,
-  ShoppingBagIcon,
 } from "@heroicons/vue/24/outline";
 import { Popover, PopoverButton, PopoverGroup } from "@headlessui/vue";
 import BlackFriday from "./BlackFriday.vue";
 import DiscountPopUp from "./DiscountPopUp.vue";
 import AuthDropdown from "./AccountComp/AuthDropdown.vue";
 import LoginDropdown from "./AccountComp/loginDropdown.vue";
+import FacebookLogin from "./FacebookLogin.vue";
 
-const navigation = {
-  categories: [],
+
+
+const navigation = ref({
+  categories: [], // ✅ Initialize categories to an empty array
   pages: [
     { name: "HOME", href: "/Home" },
     { name: "SERVICES", href: "#" },
@@ -183,9 +199,8 @@ const navigation = {
     { name: "ABOUT", href: "/AboutUs" },
     { name: "STORES", href: "/Stores" },
   ],
-};
+});
 
-const open = ref(false);
 
 // Dark mode logic
 const isDarkMode = ref(false);
@@ -216,24 +231,21 @@ const switchLanguage = (event) => {
   localStorage.setItem("user-locale", newLocale);
 };
 
+// Dropdown menu logic
 const open2 = ref(false);
 let timeout = null;
 
-// Open dropdown on hover
 const showDropdown = () => {
   open2.value = true;
 };
 
-// Close dropdown with a delay
 const closeDropdown = () => {
   timeout = setTimeout(() => {
     open2.value = false;
   }, 300);
 };
 
-// Cancel closing when hovering back
 const cancelClose = () => {
   clearTimeout(timeout);
 };
-
 </script>

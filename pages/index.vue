@@ -83,7 +83,7 @@ import AllCategories from '~/components/AllCategories.vue';
 
 
 definePageMeta({
-  layout:'empty'
+  layout:'default'
 });
 
 // Props
