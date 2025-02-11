@@ -1,15 +1,16 @@
 <template>
-  <div>
-    <section class="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">
+  <div>    
+    <section class="bg-gray-50 py-8 antialiased dark:bg-gray-900 md:py-12">   
       <!-- Search Bar -->
       <div class="mx-auto max-w-screen-xl px-4 pb-6 2xl:px-0">
         <div class="relative">
           <input
-            v-model="searchQuery"
+            v-model="query"
             type="text"
             placeholder="Search products..."
             class="w-full rounded-lg border border-gray-300 bg-white py-3 pl-10 pr-4 text-sm text-gray-700 shadow-md focus:border-primary-500 focus:ring-2 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-primary-700"
           />
+          
           <svg
             class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500"
             xmlns="http://www.w3.org/2000/svg"
@@ -32,30 +33,26 @@
         <div class="mb-4 grid gap-6 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
           <!-- Product Card -->
           <div
-            v-for="(product, index) in filteredProducts"
+            v-for="(product, index) in displayedProducts"
             :key="index"
             class="group block rounded-lg border border-gray-200 bg-white p-4 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800"
           >
             <!-- Product Title -->
             <div class="text-center bg-gray-100 dark:bg-gray-700 p-2 rounded-t-lg">
               <p
-                class="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300 group-hover:text-primary-600 dark:group-hover:text-primary-400"
+                class="text-sm font-semibold text-gray-900 dark:text-white transition-colors duration-300 group-hover:text-primary-600 dark:group-hover:text-primary-400"
               >
-                {{ product.title }}
+                {{ product.name }}
               </p>
             </div>
 
             <!-- Product Image -->
             <div class="h-48 w-full overflow-hidden rounded-md">
+              
               <img
-                class="mx-auto h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-90 dark:hidden"
-                :src="product.imageLight"
-                :alt="product.title"
-              />
-              <img
-                class="mx-auto hidden h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-90 dark:block"
-                :src="product.imageDark"
-                :alt="product.title"
+                class=" hidden h-full w-full  transition-opacity duration-300 group-hover:opacity-90 dark:block"
+                :src="product.image"
+                :alt="product.name"
               />
             </div>
 
@@ -83,12 +80,12 @@
               </div>
               <div class="mt-4 flex items-center justify-between gap-2">
                 <p class="text-xl font-extrabold leading-tight text-gray-900 dark:text-white">
-                  {{ product.price }}
+                  {{ product.priceCents }}
                 </p>
                 <button
                   type="button"
                   class="add-to-cart-btn relative overflow-hidden rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-black transition-transform duration-300 hover:scale-105 hover:bg-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-300"
-                  @click="handleAddToCart(product)"
+                  @click=""
                 >
                   <span class="relative z-10 flex items-center">
                     <svg
@@ -122,35 +119,28 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      searchQuery: "",
-      products: Array.from({ length: 40 }, (_, index) => ({
-        title: `Product ${index + 1}`,
-        price: `$${(Math.random() * 1000 + 50).toFixed(2)}`,
-        type: index % 2 === 0 ? "Electronic" : "Apparel",
-        imageLight: `https://picsum.photos/200/300?random=${index + 1}`,
-        imageDark: `https://picsum.photos/200/300?random=${index + 1}`,
-        quantity: 0,
-      })),
-    };
-  },
-  computed: {
-    filteredProducts() {
-      const query = this.searchQuery.toLowerCase();
-      return this.products.filter((product) =>
-        product.title.toLowerCase().includes(query)
-      );
-    },
-  },
-  methods: {
-    handleAddToCart(product) {
-      //alert(`${product.title} added to cart with quantity: ${product.quantity}`);
-    },
-  },
-};
+<script setup>
+import { ref } from 'vue'
+
+import { sortOption } from '~/composables/sorting.js';
+
+import { products} from '~/composables/productsList.js';
+
+import useSearch from '~/composables/useSearch.js';
+
+const { query, filteredItems } = useSearch(products.value); // Use destructuring
+
+
+const displayedProducts = computed(() =>{
+  return [...filteredItems.value].sort((a, b) => {
+    if (sortOption.value === 'price-asc') return a.priceCents - b.priceCents;
+    if (sortOption.value === 'price-desc') return b.priceCents - a.priceCents;
+    if (sortOption.value === 'name-asc') return a.name.localeCompare(b.name);
+    if (sortOption.value === 'name-desc') return b.name.localeCompare(a.name);
+    return 0;
+  });
+}) 
+
 </script>
 
 <style scoped>

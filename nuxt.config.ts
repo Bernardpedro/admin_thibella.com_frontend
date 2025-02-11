@@ -1,3 +1,4 @@
+
 export default defineNuxtConfig(
   {
     components: true,
@@ -45,7 +46,7 @@ export default defineNuxtConfig(
       strategy: 'no_prefix'
     },
 
-    compatibilityDate: '2025-02-01',
+    compatibilityDate: '2025-02-09',
 
     devtools: {
       enabled: true

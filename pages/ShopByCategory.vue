@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AllCategories from '~/components/AllCategories.vue';
+import AllCategories from '~/components/product/AllCategoriesC.vue';
 
 definePageMeta({
   ShopByCategory:'ShopByCategory'

@@ -82,11 +82,16 @@
 
                   <!-- Sign In / Create Account -->
                   <div class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                    <a
-                      href="/account/Facebook" @mouseover="showDropdown" @mouseleave="closeDropdown"
+                    <a 
+                      href="/account/Facebook" v-if="!userStore.user" @mouseover="showDropdown" @mouseleave="closeDropdown"
                       class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
                       >Sign in</a
                     >
+                    <a
+                    href="" v-if="userStore.user" @click="logout" @mouseover="showDropdown" @mouseleave="closeDropdown"
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400" 
+                    >Sign out</a
+                  >
 
                     <!-- Dropdown Menu -->
                       <div 
@@ -141,9 +146,9 @@
                         class="size-6 shrink-0"
                         aria-hidden="true">
                       
-                      <span
+                      <span v-if="cartStore.totalItems"
                         class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >0</span
+                        >{{cartStore.totalItems}}</span
                       >
                       <span class="sr-only">items in cart</span>
                     </a>
@@ -169,13 +174,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useUserStore } from "@/stores/user"; // ✅ Import Pinia store
+import { useUserStore } from "@/stores/user"; // Import Pinia store
 
-const userStore = useUserStore(); // ✅ Initialize store
-
-// Debugging: Check if userStore is defined
-console.log("User Store:", userStore);
-console.log("User:", userStore.user);
+import { useCartStore } from '~/stores/cart';
 
 import {
   Bars3Icon,
@@ -183,21 +184,27 @@ import {
 } from "@heroicons/vue/24/outline";
 import { Popover, PopoverButton, PopoverGroup } from "@headlessui/vue";
 import BlackFriday from "./BlackFriday.vue";
-import DiscountPopUp from "./DiscountPopUp.vue";
 import AuthDropdown from "./AccountComp/AuthDropdown.vue";
 import LoginDropdown from "./AccountComp/loginDropdown.vue";
 import FacebookLogin from "./FacebookLogin.vue";
 
+const userStore = useUserStore(); //  Initialize store
+const cartStore = useCartStore();
+
+// Check if userStore is defined
+console.log("User Store:", userStore);
+console.log("User:", userStore.user);
+
 
 
 const navigation = ref({
-  categories: [], // ✅ Initialize categories to an empty array
+  categories: [], //  Initialize categories to an empty array
   pages: [
     { name: "HOME", href: "/Home" },
-    { name: "SERVICES", href: "#" },
     { name: "CONTACT", href: "/ContactUs" },
     { name: "ABOUT", href: "/AboutUs" },
-    { name: "STORES", href: "/Stores" },
+    { name: "PRODUCT CATEGORIES", href: "products/AllCategories" },
+    { name: "FILTERS", href: "products/filters" },
   ],
 });
 

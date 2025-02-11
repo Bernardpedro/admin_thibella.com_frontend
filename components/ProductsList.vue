@@ -85,7 +85,7 @@
                 <button
                   type="button"
                   class="add-to-cart-btn relative overflow-hidden rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-black transition-transform duration-300 hover:scale-105 hover:bg-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-300"
-                  @click=""
+                  @click="addProductToCart(product.id)"
                 >
                   <span class="relative z-10 flex items-center">
                     <svg
@@ -120,7 +120,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+
+import { useCartStore } from '@/stores/cart.js'; // Import cart store
 
 import { sortOption } from '~/composables/sorting.js';
 
@@ -128,7 +129,13 @@ import { products} from '~/composables/productsList.js';
 
 import useSearch from '~/composables/useSearch.js';
 
-const { query, filteredItems } = useSearch(products.value); // Use destructuring
+const cartStore = useCartStore(); // Accessing the cart store
+
+const addProductToCart = (productId) => {
+  cartStore.addToCart(productId); // Call the addToCart action
+};
+
+const { query, filteredItems } = useSearch(products.value);
 
 
 const displayedProducts = computed(() =>{

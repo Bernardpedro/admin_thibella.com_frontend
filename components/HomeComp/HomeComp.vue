@@ -78,7 +78,7 @@ import Women from '~/components/Women.vue';
 import Men from '~/components/Men.vue';
 import Kids from '~/components/Kids.vue';
 import ProductsAccessories from '~/components/ProductsAccessories.vue';
-import AllCategories from '~/components/AllCategories.vue';
+import AllCategories from '~/components/product/AllCategoriesC.vue';
 
 
 
