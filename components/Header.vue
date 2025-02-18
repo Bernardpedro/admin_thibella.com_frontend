@@ -230,7 +230,7 @@ onMounted(() => {
   }
 });
 
-// Language Switcher Logic
+// Language Logic
 const { locale } = useI18n();
 const switchLanguage = (event) => {
   const newLocale = event.target.value;
@@ -255,4 +255,5 @@ const closeDropdown = () => {
 const cancelClose = () => {
   clearTimeout(timeout);
 };
+console.log(cartStore)
 </script>

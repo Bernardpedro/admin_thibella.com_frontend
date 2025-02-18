@@ -26,6 +26,7 @@ export const useCartStore = defineStore('cart', {
       if (!process.client) return; 
 
       const product = products.value.find((p) => p.id === productId);
+      
       if (!product) {
         console.error('Product not found');
         return;
@@ -39,6 +40,7 @@ export const useCartStore = defineStore('cart', {
       }
 
       this.saveToStorage();
+      console.log(product);
     },
 
     removeFromCart(productId) {

@@ -80,12 +80,12 @@
               </div>
               <div class="mt-4 flex items-center justify-between gap-2">
                 <p class="text-xl font-extrabold leading-tight text-gray-900 dark:text-white">
-                  {{ product.priceCents }}
+                  {{ ` ${product.priceCents} Rwf` }}
                 </p>
                 <button
                   type="button"
                   class="add-to-cart-btn relative overflow-hidden rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-black transition-transform duration-300 hover:scale-105 hover:bg-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-300"
-                  @click="addProductToCart(product.id)"
+                  @click=""
                 >
                   <span class="relative z-10 flex items-center">
                     <svg
@@ -120,33 +120,50 @@
 </template>
 
 <script setup>
+import { ref, computed,  onMounted, watch } from 'vue';
 
-import { useCartStore } from '@/stores/cart.js'; // Import cart store
+import { apiFetch } from '~/utils/api';
 
-import { sortOption } from '~/composables/sorting.js';
+const  data = ref([]); // `data` is a ref 
+const f =ref([])
+onMounted(async () => {
+  try {
+    const res = await apiFetch('products',{method:'GET', headers: {'Content-Type': 'Application/json','Accept-Language': 'en'}}); // Fetch data from the API
+    data.value = res;
+     f.value=data.value?.data ?? [];
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+});
 
-import { products} from '~/composables/productsList.js';
-
-import useSearch from '~/composables/useSearch.js';
-
-const cartStore = useCartStore(); // Accessing the cart store
-
-const addProductToCart = (productId) => {
-  cartStore.addToCart(productId); // Call the addToCart action
-};
-
-const { query, filteredItems } = useSearch(products.value);
-
-
-const displayedProducts = computed(() =>{
-  return [...filteredItems.value].sort((a, b) => {
-    if (sortOption.value === 'price-asc') return a.priceCents - b.priceCents;
-    if (sortOption.value === 'price-desc') return b.priceCents - a.priceCents;
-    if (sortOption.value === 'name-asc') return a.name.localeCompare(b.name);
-    if (sortOption.value === 'name-desc') return b.name.localeCompare(a.name);
-    return 0;
+  const productsData = computed(() => {
+    return data.value?.data ?? []; 
   });
-}) 
+
+  // search for products
+  const query = ref('');
+  const filteredItems = computed(() => {
+    if (!query.value) {
+      return productsData.value.length > 0 ? productsData.value : f.value;
+    }
+    return productsData.value.filter((product) => {
+      return product.name.toLowerCase().includes(query.value.toLowerCase());
+    });
+});
+
+  // sorting options
+  
+  const sortOption = useState('sortOption', () => 'price-desc');
+
+  const displayedProducts = computed(() =>{
+    return [...filteredItems.value].sort((a, b) => {
+      if (sortOption.value === 'price-asc') return a.priceCents - b.priceCents;
+      if (sortOption.value === 'price-desc') return b.priceCents - a.priceCents;
+      if (sortOption.value === 'name-asc') return a.name.localeCompare(b.name);
+      if (sortOption.value === 'name-desc') return b.name.localeCompare(a.name);
+      return 0;
+    });
+  }) 
 
 </script>
 

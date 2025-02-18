@@ -15,6 +15,7 @@
 </template>
 
 <script setup>
+import { useState } from '#app';
+const sortOption = useState('sortOption');
 
-import { sortOption} from '~/composables/sorting.js'
 </script>
