@@ -9,7 +9,7 @@ import ShoppingCartC from '~/components/cart/ShoppingCartC.vue';
 
 
 definePageMeta({
-layout:'empty'
+layout:'headeronly',
 });
 
 </script>

@@ -139,16 +139,15 @@
                   <!-- Cart -->
                   <div class="ml-4 flow-root lg:ml-6">
                     <a
-                      href="/ShoppingCartP"
+                      href="/ShoppingCartP" @click.prevent ="toggledisplaySorting"
                       class="group -m-2 flex items-center p-2 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-400"
                     >
                       <img src="assets/img/Accessories/images/icons/cart-icon.png" alt="cart-icon"
                         class="size-6 shrink-0"
                         aria-hidden="true">
                       
-                      <span v-if="cartStore.totalItems"
-                        class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >{{cartStore.totalItems}}</span
+                      <span v-if="cartStore.cartTotalQuantity() >= 0" class="size ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >{{cartStore.cartTotalQuantity()}}</span
                       >
                       <span class="sr-only">items in cart</span>
                     </a>
@@ -165,7 +164,7 @@
             </div>
           </nav>
         </header>
-        <Sorting/>
+        <Sorting v-if="uiStore.isDisplaySorting"/>
         
       </div>
     </div>
@@ -176,29 +175,25 @@
 import { ref, onMounted } from "vue";
 import { useUserStore } from "@/stores/user"; // Import Pinia store
 
-import { useCartStore } from '~/stores/cart';
-
 import {
   Bars3Icon,
   MagnifyingGlassIcon,
 } from "@heroicons/vue/24/outline";
 import { Popover, PopoverButton, PopoverGroup } from "@headlessui/vue";
-import BlackFriday from "./BlackFriday.vue";
-import AuthDropdown from "./AccountComp/AuthDropdown.vue";
 import LoginDropdown from "./AccountComp/loginDropdown.vue";
-import FacebookLogin from "./FacebookLogin.vue";
+import {useUiStore} from '@/stores/ui';
+import { useRouter } from "vue-router";
+// user authentication
+const userStore = useUserStore(); 
 
-const userStore = useUserStore(); //  Initialize store
+// cart 
 const cartStore = useCartStore();
+cartStore.loadCart();
+//console.log('cart', cartStore.$state.cart);
 
-// Check if userStore is defined
-console.log("User Store:", userStore);
-console.log("User:", userStore.user);
-
-
-
+// navigation categories
 const navigation = ref({
-  categories: [], //  Initialize categories to an empty array
+  categories: [], 
   pages: [
     { name: "HOME", href: "/Home" },
     { name: "CONTACT", href: "/ContactUs" },
@@ -207,6 +202,17 @@ const navigation = ref({
     { name: "FILTERS", href: "products/filters" },
   ],
 });
+// vue router 
+
+const router = useRouter();
+
+// Sorting logic
+const uiStore = useUiStore();
+
+const toggledisplaySorting = () =>{
+  uiStore.toggleSorting(); 
+  router.push('/ShoppingCartP')
+}
 
 
 // Dark mode logic
@@ -255,5 +261,4 @@ const closeDropdown = () => {
 const cancelClose = () => {
   clearTimeout(timeout);
 };
-console.log(cartStore)
 </script>

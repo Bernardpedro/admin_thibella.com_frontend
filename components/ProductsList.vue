@@ -85,7 +85,7 @@
                 <button
                   type="button"
                   class="add-to-cart-btn relative overflow-hidden rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-black transition-transform duration-300 hover:scale-105 hover:bg-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-300"
-                  @click=""
+                  @click="cartStore.addToCart(product)"
                 >
                   <span class="relative z-10 flex items-center">
                     <svg
@@ -120,9 +120,9 @@
 </template>
 
 <script setup>
-import { ref, computed,  onMounted, watch } from 'vue';
-
+import { ref, computed,  onMounted } from 'vue';
 import { apiFetch } from '~/utils/api';
+import { useCartStore } from '~/stores/cart';
 
 const  data = ref([]); // `data` is a ref 
 const f =ref([])
@@ -165,6 +165,9 @@ onMounted(async () => {
     });
   }) 
 
+  //cart 
+
+  const cartStore = useCartStore();
 </script>
 
 <style scoped>
