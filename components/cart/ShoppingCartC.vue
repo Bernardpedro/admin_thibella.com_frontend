@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useCartStore } from "@/stores/cart"; 
+import { formatCurrency } from "@/stores/currencyFormatter";
 
 interface Product {
   id: string; 
@@ -28,17 +29,16 @@ const decrement = (product: Product) => {
   if (product.quantity > 1) product.quantity--;
 };
 
-// State for user selections
+//  user selections
 const selectedColor = ref("");
-const selectedCurrency = ref("");
+const selectedCurrency = ref("RWF");
 const selectedShipping = ref("");
 
 // Convert price based on selected currency
 const convertPrice = (priceCents: number) => {
-  const price = priceCents / 100;
-  if (selectedCurrency.value === "$") return (price / 1200).toFixed(2); // Example exchange rate
-  if (selectedCurrency.value === "€") return (price / 1300).toFixed(2);
-  return price.toFixed(0); // Default to Rwf
+  if (selectedCurrency.value === "USD") return parseFloat((priceCents * 0.00071).toFixed(2)) 
+  if (selectedCurrency.value === "EUR") return parseFloat((priceCents * 0.00068).toFixed(2))
+  if (selectedCurrency.value === "RWF") return parseFloat((priceCents * 1).toFixed(2))
 };
 </script>
 
@@ -76,9 +76,9 @@ const convertPrice = (priceCents: number) => {
                     <span class="p-0 text-sm bg-gray-200 rounded">
                       <select v-model="selectedCurrency"  class="border p-1 w-[120px] rounded">
                         <option disabled value="">currency</option>
-                        <option value="Rwf">Rwf</option>
-                        <option value="$">$</option>
-                        <option value="€">€</option>
+                        <option value="RWF">RWF</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EURO</option>
                       </select>
                     </span>
                     <span class="p-0 text-sm bg-gray-200 rounded">
@@ -102,8 +102,11 @@ const convertPrice = (priceCents: number) => {
                   <button @click="increment(product)" class="px-2 py-1 text-white">+</button>
                 </div>
 
-                <p class="ml-6 font-semibold text-gray-900 dark:text-white">
-                  {{ product.priceCents }} {{ selectedCurrency }}
+                <p v-if="selectedCurrency ==='RWF' " class="ml-6 font-semibold text-gray-900 dark:text-white">
+                  {{ formatCurrency(convertPrice(product.priceCents), selectedCurrency ) }} 
+                </p>
+                <p v-else class="ml-6 font-semibold text-gray-900 dark:text-white">
+                   {{ formatCurrency(convertPrice(product.priceCents), selectedCurrency) }} 
                 </p>
               </div>
             </div>
@@ -117,7 +120,7 @@ const convertPrice = (priceCents: number) => {
               <div class="mt-6 space-y-4">
                 <div class="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Subtotal</span>
-                  <span>{{ cartStore.calculateTotalPrice }} Rwf</span>
+                  <span>{{ formatCurrency(convertPrice(cartStore.calculateTotalPrice)), selectedCurrency }}</span>
                 </div>
 
                 <div class="flex justify-between text-gray-600 dark:text-gray-400">
@@ -127,7 +130,7 @@ const convertPrice = (priceCents: number) => {
 
                 <div class="flex justify-between text-gray-900 dark:text-white font-bold">
                   <span>Total</span>
-                  <span>{{ cartStore.calculateTotalPrice }} Rwf</span>
+                  <span>{{formatCurrency(convertPrice(cartStore.calculateTotalPrice)), selectedCurrency }}</span>
                 </div>
               </div>
 

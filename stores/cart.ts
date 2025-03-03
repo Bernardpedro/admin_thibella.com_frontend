@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { apiFetch } from "~/utils/api";
 import { ref, onMounted } from "vue"; 
+import { formatCurrency } from "@/stores/currencyFormatter";
 
 export type Product = {
   id: string; 
@@ -17,7 +18,7 @@ export type Product = {
 };
 
 
-const products = ref<Product[]>([]); // ✅ Corrected ref type
+const products = ref<Product[]>([]); 
 
 onMounted(async () => {
   try {
@@ -33,7 +34,8 @@ onMounted(async () => {
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
-    cart: [] as Product[] 
+    cart: [] as Product[] ,
+    selectedCurrency: "RWF",
   }),
   getters: {
     getProduct: (state) => (productId: string) => {
@@ -48,6 +50,10 @@ export const useCartStore = defineStore('cart', {
     },
     calculateTotalPrice: (state) =>{
       return state.cart.reduce((total, product)=> total + product.priceCents * product.quantity, 0);
+    },
+    convertPrice: (state) => (priceCents: number) => {
+      const exchangeRates = { USD: 0.00071, EUR: 0.00068, RWF: 1 };
+      return parseFloat((priceCents * exchangeRates[state.selectedCurrency]).toFixed(2));
     }
   },
   actions: {
