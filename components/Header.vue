@@ -198,7 +198,7 @@ const navigation = ref({
     { name: "HOME", href: "/Home" },
     { name: "CONTACT", href: "/ContactUs" },
     { name: "ABOUT", href: "/AboutUs" },
-    { name: "PRODUCT CATEGORIES", href: "products/AllCategories" },
+    { name: "CATEGORIES", href: "products/AllCategories" },
     { name: "FILTERS", href: "products/filters" },
   ],
 });

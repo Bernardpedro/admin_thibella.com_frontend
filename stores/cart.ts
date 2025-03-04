@@ -51,12 +51,13 @@ export const useCartStore = defineStore('cart', {
     calculateTotalPrice: (state) =>{
       return state.cart.reduce((total, product)=> total + product.priceCents * product.quantity, 0);
     },
-    convertPrice: (state) => (priceCents: number) => {
-      const exchangeRates = { USD: 0.00071, EUR: 0.00068, RWF: 1 };
-      return parseFloat((priceCents * exchangeRates[state.selectedCurrency]).toFixed(2));
-    }
   },
   actions: {
+    convertPrice(priceCents: number) {
+      const exchangeRates: Record<string, number> = { USD: 0.00071, EUR: 0.00068, RWF: 1 };
+      return parseFloat((priceCents * exchangeRates[this.selectedCurrency]).toFixed(2));
+    },
+
     loadCart(){
       if(import.meta.client){
     const  storedCart = localStorage.getItem('cart');
@@ -82,5 +83,6 @@ export const useCartStore = defineStore('cart', {
       localStorage.setItem('cart', JSON.stringify(this.cart));
     }
   }
+  
   }
 });
