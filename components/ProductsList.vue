@@ -48,12 +48,14 @@
 
             <!-- Product Image -->
             <div class="h-48 w-full overflow-hidden rounded-md">
+              <NuxtLink to="/products/ProductOverView">
               
               <img
                 class=" hidden h-full w-full  transition-opacity duration-300 group-hover:opacity-90 dark:block"
                 :src="product.image"
                 :alt="product.name"
               />
+              </NuxtLink>
             </div>
 
             <!-- Product Details -->
@@ -80,7 +82,7 @@
               </div>
               <div class="mt-4 flex items-center justify-between gap-2">
                 <p class="text-xl font-extrabold leading-tight text-gray-900 dark:text-white">
-                  {{ ` ${product.priceCents} Rwf` }}
+                  {{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency) }}
                 </p>
                 <button
                   type="button"
@@ -128,7 +130,7 @@ const  data = ref([]); // `data` is a ref
 const f =ref([])
 onMounted(async () => {
   try {
-    const res = await apiFetch('products',{method:'GET', headers: {'Content-Type': 'Application/json','Accept-Language': 'en'}}); // Fetch data from the API
+    const res = await apiFetch('products2',{method:'GET', headers: {'Content-Type': 'Application/json','Accept-Language': 'en'}}); // Fetch data from the API
     data.value = res;
      f.value=data.value?.data ?? [];
   } catch (error) {

@@ -23,6 +23,12 @@ watch(()=>cartStore.cart, (cartAfterUpdate)=> {
   console.log("Cart after updated: ", cartAfterUpdate);
 } )
 
+watch(() => cartStore.selectedCurrency, (newCurrency) => {
+  cartStore.setCurrency(newCurrency); 
+});
+
+cartStore.loadCart();
+
 // Functions to handle quantity changes
 const increment = (product: Product) => product.quantity++;
 const decrement = (product: Product) => {
@@ -114,7 +120,7 @@ const selectedShipping = ref("");
                 <div class="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Subtotal</span>
                   <span>
-                    {{ formatCurrency(cartStore.convertPrice(cartStore.calculateTotalPrice), cartStore.selectedCurrency) }}
+                    {{ formatCurrency(cartStore.convertPrice(cartStore.calculateTotalPrice.value), cartStore.selectedCurrency) }}
                   </span>
                 </div>
 
@@ -125,7 +131,7 @@ const selectedShipping = ref("");
 
                 <div class="flex justify-between text-gray-900 dark:text-white font-bold">
                   <span>Total</span>
-                  <span>{{formatCurrency(cartStore.convertPrice(cartStore.calculateTotalPrice), cartStore.selectedCurrency) }}</span>
+                  <span>{{formatCurrency(cartStore.convertPrice(cartStore.calculateTotalPrice.value), cartStore.selectedCurrency) }}</span>
                 </div>
               </div>
 

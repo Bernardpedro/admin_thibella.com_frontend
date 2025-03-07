@@ -10,8 +10,9 @@
               <img :src="product.image" :alt="product.name" class="w-20 h-20">
             </div>
             <div>
-              <h3 class="font-semibold">{{formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency)}}</h3>
               <p class="text-gray-500 text-sm">{{ product.name }}</p>
+              <h3 class="font-semibold">{{formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency)}}</h3>
+              
             </div>
           </div>
           <div class="mt-4 flex items-center gap-2">
@@ -26,12 +27,15 @@
             <div class="flex justify-between">
               <span>Subtotal:</span>
               <span>
-                {{ formatCurrency(cartStore.convertPrice(cartStore.calculateTotalPrice), cartStore.selectedCurrency) }}
+                <span>
+                  {{ formatCurrency(cartStore.convertPrice(cartStore.calculateTotalPrice.value), cartStore.selectedCurrency) }}
+                </span>
+                
               </span>
             </div>
             <div class="flex justify-between">
               <span>Discount:</span>
-              <span>$0.00</span>
+              <span> $0.00 </span>
             </div>
             <div class="flex justify-between">
               <span>Shipping:</span>
@@ -39,7 +43,10 @@
             </div>
             <div class="flex justify-between font-semibold mt-2">
               <span>Total:</span>
-              <span>{{ formatCurrency(cartStore.convertPrice(cartStore.calculateTotalPrice), cartStore.selectedCurrency) }}</span>
+              <span> <span>
+                {{ formatCurrency(cartStore.convertPrice(cartStore.calculateTotalPrice.value), cartStore.selectedCurrency) }}
+              </span>
+              </span>
             </div>
           </div>
         </div>
@@ -61,6 +68,8 @@
               </select>
               <input type="text" placeholder="Phone Number" class="border p-2 w-full rounded">
             </div>
+            <h3 class="font-semibold">Email</h3>
+            <input type="email" placeholder="Enter your email" class="border p-2 w-full rounded" required>
           </div>
           <div>
             <h3 class="font-semibold">Shipping Address</h3>
@@ -102,9 +111,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { formatCurrency } from '~/stores/currencyFormatter';
+import { useCartStore } from '~/stores/cart';
 
 const cartStore = useCartStore();
+cartStore.loadCart();
+onMounted(() => {
+  cartStore.loadCart();
+
+});
+console.log("Cart Loaded:", cartStore.cart);
+console.log("Total Items:", cartStore.cart.length);
+console.log("Cart Total Price:", cartStore.calculateTotalPrice.value);
+
+
+
+// payment method
 const paymentMethod = ref('mobile_money');
 </script>

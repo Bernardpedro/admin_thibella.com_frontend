@@ -17,7 +17,6 @@ export type Product = {
   type: string;
 };
 
-
 const products = ref<Product[]>([]); 
 
 onMounted(async () => {
@@ -35,33 +34,50 @@ onMounted(async () => {
 export const useCartStore = defineStore('cart', {
   state: () => ({
     cart: [] as Product[] ,
-    selectedCurrency: "RWF",
+    selectedCurrency: ref("RWF"),
   }),
   getters: {
-    getProduct: (state) => (productId: string) => {
-      return state.cart.find((item) => item.id === productId);
-    },
-    getProductQuantity: (state) =>(productId : string) =>{
-      const product = state.cart.find((item) => item.id === productId);
-      return product ? product.quantity : 0;
-    },
-    cartTotalQuantity: (state) =>(productId : string) =>{
-      return state.cart.reduce((total, product)=> total + product.quantity, 0);
-    },
-    calculateTotalPrice: (state) =>{
-      return state.cart.reduce((total, product)=> total + product.priceCents * product.quantity, 0);
-    },
+    cartTotalQuantity: (state) => computed(() =>{
+      return state.cart.reduce((total, product) => total + product.quantity, 0);
+    }),
+    
+   calculateTotalPrice: (state) => computed(() => {
+    return state.cart.reduce((total, product) => total + product.priceCents * product.quantity, 0);
+   })
+    
   },
   actions: {
     convertPrice(priceCents: number) {
       const exchangeRates: Record<string, number> = { USD: 0.00071, EUR: 0.00068, RWF: 1 };
-      return parseFloat((priceCents * exchangeRates[this.selectedCurrency]).toFixed(2));
+      const convertedPrice = parseFloat((priceCents * exchangeRates[this.selectedCurrency]).toFixed(2));
+      return convertedPrice;
+    },
+    setCurrency(newCurrency: string) {
+      this.selectedCurrency = newCurrency;
+
+      if (import.meta.client) {
+        localStorage.setItem('selectedCurrency', newCurrency);
+      }
+      
+      this.updateLocalStorage();
     },
 
     loadCart(){
       if(import.meta.client){
     const  storedCart = localStorage.getItem('cart');
+    const storedCurrency = localStorage.getItem('selectedCurrency');
+
     this.cart = storedCart ? JSON.parse(storedCart) : [];
+    this.selectedCurrency = storedCurrency ? storedCurrency : "RWF";
+
+    this.updateLocalStorage();
+    
+    }
+  },
+  updateLocalStorage() {
+    if (import.meta.client) {
+      localStorage.setItem('cart', JSON.stringify(this.cart)); 
+      localStorage.setItem('selectedCurrency', this.selectedCurrency);
     }
   },
     addToCart(product: Product) {
@@ -75,12 +91,14 @@ export const useCartStore = defineStore('cart', {
       }
       if(import.meta.client){
     localStorage.setItem('cart', JSON.stringify(this.cart));
+    this.updateLocalStorage();
     }
   },
     removeFromCart(productId: string) {
       this.cart = this.cart.filter((item) => item.id !== productId);
       if(import.meta.client){
       localStorage.setItem('cart', JSON.stringify(this.cart));
+      this.updateLocalStorage();
     }
   }
   

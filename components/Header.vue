@@ -146,8 +146,8 @@
                         class="size-6 shrink-0"
                         aria-hidden="true">
                       
-                      <span v-if="cartStore.cartTotalQuantity() >= 0" class="size ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >{{cartStore.cartTotalQuantity()}}</span
+                      <span v-if="cartStore.cartTotalQuantity.value >= 0" class="size ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >{{cartStore.cartTotalQuantity.value}}</span
                       >
                       <span class="sr-only">items in cart</span>
                     </a>
@@ -195,7 +195,7 @@ cartStore.loadCart();
 const navigation = ref({
   categories: [], 
   pages: [
-    { name: "HOME", href: "/Home" },
+    { name: "HOME", href: "/index" },
     { name: "CONTACT", href: "/ContactUs" },
     { name: "ABOUT", href: "/AboutUs" },
     { name: "CATEGORIES", href: "products/AllCategories" },
