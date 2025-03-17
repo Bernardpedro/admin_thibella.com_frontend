@@ -4,24 +4,44 @@ import { ref, onMounted } from "vue";
 import { formatCurrency } from "@/stores/currencyFormatter";
 
 export type Product = {
-  id: string; 
+  id: string;
   image: string;
+  imageOfColors: {
+    imageA: string;
+    imageB: string;
+    imageC: string;
+    imageD: string;
+  };
   name: string;
+  description: string;
   rating: {
     stars: number;
     count: number;
   };
-  priceCents: number; 
-  keywords: string[]; 
+  priceCents: number;
+  keywords: string[];
   quantity: number;
   type: string;
+  color: {
+    color1: string;
+    color2: string;
+    color3: string;
+    color4: string;
+  };
+  clothingSize: {
+    small: string;
+    medium: string;
+    large: string;
+    xlarge: string;
+  };
+  shoesSize: number;
 };
 
 const products = ref<Product[]>([]); 
 
 onMounted(async () => {
   try {
-    const response = await apiFetch('products', { 
+    const response = await apiFetch('products2', { 
       method: 'GET',
       headers: { 'Content-Type': 'application/json', 'Accept-Language': 'en' }
     });
@@ -35,6 +55,7 @@ export const useCartStore = defineStore('cart', {
   state: () => ({
     cart: [] as Product[] ,
     selectedCurrency: ref("RWF"),
+    selectedImage: ref(""),
   }),
   getters: {
     cartTotalQuantity: (state) => computed(() =>{
@@ -52,6 +73,14 @@ export const useCartStore = defineStore('cart', {
       const convertedPrice = parseFloat((priceCents * exchangeRates[this.selectedCurrency]).toFixed(2));
       return convertedPrice;
     },
+    setSelectedImage(imageUrl: string) {
+      this.selectedImage = imageUrl;
+
+      if (import.meta.client) {
+        localStorage.setItem('selectedImage', imageUrl);
+      }
+      this.updateLocalStorage();
+    },
     setCurrency(newCurrency: string) {
       this.selectedCurrency = newCurrency;
 
@@ -66,9 +95,11 @@ export const useCartStore = defineStore('cart', {
       if(import.meta.client){
     const  storedCart = localStorage.getItem('cart');
     const storedCurrency = localStorage.getItem('selectedCurrency');
+    const storedImage = localStorage.getItem('selectedImage');
 
     this.cart = storedCart ? JSON.parse(storedCart) : [];
-    this.selectedCurrency = storedCurrency ? storedCurrency : "RWF";
+    this.selectedCurrency = storedCurrency ? storedCurrency : "RWF";  
+    this.selectedImage = storedImage ? storedImage : "";
 
     this.updateLocalStorage();
     
@@ -78,6 +109,7 @@ export const useCartStore = defineStore('cart', {
     if (import.meta.client) {
       localStorage.setItem('cart', JSON.stringify(this.cart)); 
       localStorage.setItem('selectedCurrency', this.selectedCurrency);
+      localStorage.setItem('selectedImage', this.selectedImage);
     }
   },
     addToCart(product: Product) {

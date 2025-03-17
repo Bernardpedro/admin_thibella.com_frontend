@@ -47,7 +47,9 @@
             </div>
 
             <!-- Product Image -->
-            <div class="h-48 w-full overflow-hidden rounded-md">
+            <div 
+            @click="goToProductDetails(product.id)"
+            class="h-48 w-full overflow-hidden rounded-md">
               <NuxtLink to="/products/ProductOverView">
               
               <img
@@ -125,14 +127,18 @@
 import { ref, computed,  onMounted } from 'vue';
 import { apiFetch } from '~/utils/api';
 import { useCartStore } from '~/stores/cart';
+import { useRouter } from "vue-router";
+
+const router = useRouter();// vue router 
 
 const  data = ref([]); // `data` is a ref 
 const f =ref([])
-onMounted(async () => {
+  onMounted(async () => {
   try {
     const res = await apiFetch('products2',{method:'GET', headers: {'Content-Type': 'Application/json','Accept-Language': 'en'}}); // Fetch data from the API
     data.value = res;
      f.value=data.value?.data ?? [];
+     localStorage.setItem("products", JSON.stringify(f.value));
   } catch (error) {
     console.error('Error fetching data:', error);
   }
@@ -167,6 +173,11 @@ onMounted(async () => {
     });
   }) 
 
+  // router 
+
+  const goToProductDetails = (id) => {
+    router.push(`/products/${id}`);
+  }
   //cart 
 
   const cartStore = useCartStore();

@@ -103,7 +103,9 @@
               </div>
             </div>
           </div>
-          <button class="w-full bg-gray-800 text-white py-2 rounded">Place Order</button>
+          <NuxtLink to="/orders/orders">
+            <button class="w-full bg-gray-800 text-white py-2 rounded">Place Order</button>
+          </NuxtLink>
         </form>
       </div>
     </div>
