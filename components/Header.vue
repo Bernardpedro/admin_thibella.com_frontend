@@ -173,7 +173,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useUserStore } from "@/stores/user"; // Import Pinia store
+import { useUserStore } from "~/stores/user"; // Import Pinia store
 
 import {
   Bars3Icon,

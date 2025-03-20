@@ -132,7 +132,15 @@ export const useCartStore = defineStore('cart', {
       localStorage.setItem('cart', JSON.stringify(this.cart));
       this.updateLocalStorage();
     }
-  }
+  },
+  //clear cart
+  clearCart() {
+    this.cart = [];
+    if(import.meta.client){
+    localStorage.setItem('cart', JSON.stringify(this.cart));
+    this.updateLocalStorage();
   
+  }
+}  
   }
 });

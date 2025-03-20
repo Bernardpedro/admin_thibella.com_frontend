@@ -1,193 +1,86 @@
+
+<!-- pages/orders/[id].vue -->
 <template>
-  <div class="flex min-h-screen bg-gray-100">
-    <!-- Left sidebar with product images -->
-    <div class="w-48 bg-gray-50 border-r border-gray-200 p-4 flex flex-col items-center gap-6">
-      <div v-for="(image, index) in productImages" :key="index" class="w-32 h-32 flex items-center justify-center">
-        <img :src="image" :alt="`Product view ${index + 1}`" class="max-w-full max-h-full object-contain" />
-      </div>
-      
-      <!-- Barcode at bottom -->
-      <div class="mt-auto">
-        <img src="assets/img/barcode.png" alt="Barcode" class="w-32" />
+  <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow">
+    <!-- Breadcrumb Navigation -->
+    <div class="flex items-center text-gray-500 mb-6">
+      <NuxtLink to="/" class="hover:text-blue-500">Home</NuxtLink>
+      <span class="mx-2">›</span>
+      <NuxtLink to="/orders" class="hover:text-blue-500">Orders</NuxtLink>
+      <span class="mx-2">›</span>
+      <span class="text-gray-400">ID {{ order.id }}</span>
+    </div>
+
+    <!-- Order Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-medium">Order ID: {{ order.id }}</h1>
+      <div class="flex space-x-2">
+        <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg flex items-center">
+          <span class="mr-2">Invoice</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </button>
+        <NuxtLink to="/orders/order-tracking">
+        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center">
+          <span class="mr-2">Track order</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </button>
+      </NuxtLink>
       </div>
     </div>
-    
-    <!-- Main content area -->
-    <div class="flex-1 flex flex-col">
-      <!-- Product header -->
-      <div class="p-6 border-b border-gray-200">
-        <div class="flex items-center gap-2 mb-4">
-          <button class="text-black">
-            <span class="text-xl">←</span>
-          </button>
-          <h1 class="text-2xl font-bold tracking-tight">NIKE SB AIR MAX JANOSKI 2</h1>
-        </div>
-        
-        <!-- Customer information section -->
-        <div class="mb-8">
-          <h2 class="font-medium mb-4">Customer information</h2>
-          
-          <div class="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div>
-              <div class="text-sm text-gray-500 mb-1">Customer</div>
-              <div>{{ customer.name }}</div>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 mb-1">State</div>
-              <div class="flex justify-between items-center">
-                <span>{{ customer.state }}</span>
-                <span>▼</span>
-              </div>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 mb-1">City</div>
-              <div>{{ customer.city }}</div>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 mb-1">Zip code</div>
-              <div>{{ customer.zipCode }}</div>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 mb-1">Street</div>
-              <div>{{ customer.street }}</div>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 mb-1">Number</div>
-              <div>{{ customer.number }}</div>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 mb-1">Phone</div>
-              <div>{{ customer.phone }}</div>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 mb-1">Email</div>
-              <div>{{ customer.email }}</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="grid grid-cols-4 gap-4">
-          <!-- Each cell contains both label and value -->
-          <div v-for="(item, index) in orderDetails" :key="index" class="border border-gray-100 p-2">
-            <div class="text-sm text-gray-500">{{ item.label }}</div>
-            <div class="flex justify-between items-center">
-              <span>{{ item.value }}</span>
-              <!-- <span v-if="item.hasDropdown">▼</span> -->
-            </div>
-          </div>
-        </div>
-        
-        <!-- Return details section -->
-        <div class="mb-8">
-          <h2 class="font-medium mb-4">Return details</h2>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <div class="text-sm text-gray-500 mb-1">Return address</div>
-              <div>{{ returns.address }}</div>
-            </div>
-            
-            <div>
-              <div class="text-sm text-gray-500 mb-1">Phone</div>
-              <div>{{ returns.phone }}</div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Schedule courier section -->
-        <div class="mb-8">
-          <h2 class="font-medium mb-4">Schedule courier</h2>
-          
-          <div class="flex gap-4">
-            <div v-for="(time, index) in courierTimes" :key="index" 
-                 class="border border-gray-300 p-4 w-40 text-center"
-                 :class="{ 'border-black': time.selected }">
-              <div class="font-medium">{{ time.time }}</div>
-              <div class="text-sm text-gray-500">{{ time.description }}</div>
-            </div>
-          </div>
-          
-          <div class="flex mt-4 items-center">
-            <div class="w-4 h-1 bg-black"></div>
-            <div class="w-1 h-1 bg-gray-300 rounded-full mx-1"></div>
-            <div class="w-1 h-1 bg-gray-300 rounded-full mx-1"></div>
-            <div class="w-1 h-1 bg-gray-300 rounded-full mx-1"></div>
-          </div>
-        </div>
-        
-        <!-- Fulfill order button -->
-        <button class="w-full bg-black text-white py-4 uppercase font-medium">
-          Fulfill Order
-        </button>
+
+    <!-- Order Details -->
+    <div class="flex items-center mb-6">
+      <div class="mr-16">
+        <span class="text-gray-500">Order date:</span> {{ order.orderDate }}
       </div>
-      
-      <!-- Tracking map area -->
-      <div class="flex-1 relative">
-        <div class="absolute inset-0 bg-gray-200">
-          <!-- Map will be here -->
-          <div class="w-full h-full relative">
-            <img src="assets/img/Accessories/apple-watch.png" alt="Map" class="w-full h-full object-cover" />
-            
-            <!-- Current location marker -->
-            <div class="absolute" style="top: 40%; left: 30%;">
-              <div class="w-3 h-3 bg-black rounded-full"></div>
-            </div>
+      <div class="flex items-center text-green-500">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
+        <span>Estimated delivery: {{ order.estimatedDelivery }}</span>
+      </div>
+    </div>
+
+    <hr class="border-gray-200 my-6">
+
+    <!-- Products -->
+    <div class="space-y-6">
+      <div v-for="(product, index) in order.products" :key="index" class="flex">
+        <div class="w-24 h-24 bg-gray-50 rounded-lg flex items-center justify-center mr-4">
+          <img :src="product.image" :alt="product.name" class="max-w-full max-h-full object-contain">
+        </div>
+        <div class="flex-grow">
+          <h3 class="text-xl font-medium">{{ product.name }}</h3>
+          <div class="text-gray-500">
+            {{ product.specifications.join(' | ') }}
           </div>
         </div>
-        
-        <!-- Order tracking info overlay -->
-        <div class="absolute bottom-0 left-0 right-0 bg-white">
-          <div class="border-b border-gray-200">
-            <div class="flex justify-between items-center px-6 py-3">
-              <div>Track order</div>
-              <div>{{ trackingNumber }}</div>
-              <div>Courier pick up</div>
-              <div class="flex items-center gap-1">
-                <div class="w-2 h-1 bg-black"></div>
-                <div class="w-2 h-1 bg-black"></div>
-                <div class="w-2 h-1 bg-gray-300"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Order status steps -->
-          <div class="flex">
-            <div class="flex-1 flex items-center justify-center py-2 bg-black text-white relative">
-              <div class="absolute left-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
-              Placed order
-            </div>
-            <div class="flex-1 flex items-center justify-center py-2 bg-black text-white">
-              <div class="absolute left-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
-              Packed
-            </div>
-            <div class="flex-1 flex items-center justify-center py-2 bg-black text-white">
-              <div class="absolute left-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-white rounded-full"></div>
-              Sent
-            </div>
-            <div class="flex-1 flex items-center justify-center py-2 bg-gray-100 text-gray-500">
-              Arrived
-            </div>
-          </div>
-          
-          <!-- Order history -->
-          <div class="p-6">
-            <h2 class="font-medium mb-4">Order history</h2>
-            
-            <div class="grid grid-cols-3 gap-6">
-              <div v-for="(product, index) in orderHistory" :key="index" class="text-center">
-                <img :src="product.image" :alt="product.name" class="w-full h-32 object-contain mb-2" />
-                <div class="font-medium">{{ product.name }}</div>
-                <div v-if="product.subtitle" class="text-sm text-gray-500">{{ product.subtitle }}</div>
-              </div>
-            </div>
-          </div>
+        <div class="text-right">
+          <div class="text-xl">${{ product.price.toFixed(2) }}</div>
+          <div class="text-gray-500">Qty: {{ product.quantity }}</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="border-gray-200 my-6">
+
+    <!-- Payment and Delivery Information -->
+    <div class="flex">
+      <!-- Payment Section -->
+      <div class="w-1/2">
+        <h3 class="text-xl font-medium mb-4">Payment</h3>
+        <div class="flex items-center">
+          <span class="mr-2">{{ order.payment.method }} **{{ order.payment.lastDigits }}</span>
+          <img :src="order.payment.icon" class="h-6" alt="Payment method">
+        </div>
+      </div>
+
+      <!-- Delivery Section -->
+      <div class="w-1/2">
+        <h3 class="text-xl font-medium mb-4">Delivery</h3>
+        <div>
+          <div class="font-medium text-gray-500">Address</div>
+          <div>{{ order.delivery.address.line1 }}</div>
+          <div>{{ order.delivery.address.city }}, {{ order.delivery.address.country }}</div>
+          <div>{{ order.delivery.phone }}</div>
         </div>
       </div>
     </div>
@@ -195,102 +88,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { reactive } from 'vue';
 
-// order
- 
-const orderDetails = ref([
-  { label: 'Quantity', value: '1 pcs', hasDropdown: false },
-  { label: 'Size', value: '11', hasDropdown: true },
-  { label: 'Price', value: '$140', hasDropdown: false },
-  { label: 'Shipping', value: '$27', hasDropdown: false },
-  { label: 'Discount', value: '20%', hasDropdown: false },
-  { label: 'Total', value: '$119', hasDropdown: false },
-]);
-
-
-// Sample data 
-const productImages = ref([
-  'assets/img/Accessories/apple-watch.png',
-  'assets/img/Accessories/apple-watch.png',
-  'assets/img/Accessories/apple-watch.png',
-  '/assets/img/Accessories/apple-watch.png',
-  'assets/img/Accessories/apple-watch.png',
-  'assets/img/Accessories/apple-watch.png',
-]);
-
-const customer = ref({
-  name: 'Jannet Hue',
-  state: 'New York',
-  city: 'New York',
-  zipCode: '11205',
-  street: 'Kent Avenue',
-  number: '69',
-  phone: '347-501-1891',
-  email: 'janethue@gmail.com'
-});
-
-const order = ref({
-  quantity: '1 pcs',
-  size: '11',
-  price: '140',
-  shipping: '27',
-  discount: '20%',
-  total: '119'
-});
-
-const returns = ref({
-  address: '446 W Broadway, NY',
-  phone: '580-352-7934'
-});
-
-const courierTimes = ref([
-  { 
-    time: '9:30 am', 
-    description: 'Tue 24th',
-    selected: true
+// You would typically fetch this data from an API using useAsyncData or useFetch
+// For this example, we're using hardcoded data
+const order = reactive({
+  id: '334902461',
+  orderDate: 'Feb 16, 2022',
+  estimatedDelivery: 'May 14, 2022',
+  products: [
+    {
+      name: 'MacBook Pro 14"',
+      image: '/macbook.png', // You'll need to add these images to your public folder
+      price: 2599.00,
+      quantity: 1,
+      specifications: ['Space Gray', '32GB', '1 TB']
+    },
+    {
+      name: 'iPad Pro 12.9"',
+      image: '/ipad.png',
+      price: 2399.00,
+      quantity: 1,
+      specifications: ['Space Gray', '2TB', 'Cellular']
+    },
+    {
+      name: 'AirPods Max',
+      image: '/airpods.png',
+      price: 549.00,
+      quantity: 1,
+      specifications: ['Space Gray']
+    }
+  ],
+  payment: {
+    method: 'Visa',
+    lastDigits: '56',
+    icon: '/visa.png'
   },
-  { 
-    time: '11 am', 
-    description: 'Tue 24th',
-    selected: false
-  },
-  { 
-    time: '3 pm', 
-    description: 'Tue 24th',
-    selected: false
+  delivery: {
+    address: {
+      line1: '847 Jewess Bridge Apt. 174',
+      city: 'London',
+      country: 'UK'
+    },
+    phone: '474-769-3919'
   }
-]);
-
-const trackingNumber = ref('33648');
-
-const orderHistory = ref([
-  {
-    name: 'NIKE AIR MAX 270',
-    image: 'assets/img/Accessories/apple-watch.png'
-  },
-  {
-    name: 'NIKE AIR MAX 200',
-    subtitle: '(2000 WORLD STAGE)',
-    image: 'assets/img/Accessories/apple-watch.png'
-  },
-  {
-    name: 'NIKE BLAZER CITY EASE',
-    image: 'assets/img/Accessories/apple-watch.png'
-  },
-  {
-    name: 'NIKE BLAZER LOW LX',
-    image: 'assets/img/Accessories/apple-watch.png'
-  },
-  {
-    name: 'NIKE AIR FORCE 1',
-    subtitle: '\'07 DECONSTRUCTED',
-    image: 'assets/img/Accessories/apple-watch.png'
-  },
-  {
-    name: 'NIKE AIR JORDAN 10',
-    subtitle: 'RETRO',
-    image: 'assets/img/Accessories/apple-watch.png'
-  },
-]);
+});
 </script>
