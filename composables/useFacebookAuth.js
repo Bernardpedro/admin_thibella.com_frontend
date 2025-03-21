@@ -1,5 +1,6 @@
 
 import { useUserStore } from "~/stores/user";
+import { useAuthStore } from '@/stores/auth';
 
 const userStore = useUserStore(); // Access the store
 
@@ -13,6 +14,15 @@ export const loginWithFacebook = () => {
     (response) => {
       if (response.authResponse) {
         console.log("Logged in!", response);
+        console.log("Logged in Id!", response.authResponse.userID);
+        console.log("Logged in status!", response.status);
+          const authStore = useAuthStore();
+          authStore.setUser({
+            userId: response.authResponse.userID, 
+            status: response.status
+          });
+          
+
         getUserInfo();
         window.open("https://your-website.com/dashboard", "_blank");
       } else {

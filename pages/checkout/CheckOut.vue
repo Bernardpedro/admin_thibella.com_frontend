@@ -104,7 +104,7 @@
             </div>
           </div>
           <NuxtLink to="/orders/orders">
-            <button class="w-full bg-gray-800 text-white py-2 rounded">Place Order</button>
+            <button @click="handlePlaceOrder" class="w-full bg-gray-800 text-white py-2 rounded">Place Order</button>
           </NuxtLink>
         </form>
       </div>
@@ -116,19 +116,38 @@
 import { ref, onMounted } from 'vue';
 import { formatCurrency } from '~/stores/currencyFormatter';
 import { useCartStore } from '~/stores/cart';
+import { useOrderStore } from '~/stores/order';
+import { useAuthStore } from '~/stores/auth';
+import { useRouter } from 'vue-router';
 
+const orderStore = useOrderStore();
 const cartStore = useCartStore();
+const authStore = useAuthStore();
+const router = useRouter();
+
+// load cart when component mounts
 cartStore.loadCart();
 onMounted(() => {
   cartStore.loadCart();
-
+  console.log("Cart Loaded:", cartStore.cart);
+  console.log("Total Items:", cartStore.cart.length);
+  console.log("Cart Total Price:", cartStore.calculateTotalPrice.value);
 });
-console.log("Cart Loaded:", cartStore.cart);
-console.log("Total Items:", cartStore.cart.length);
-console.log("Cart Total Price:", cartStore.calculateTotalPrice.value);
-
-
 
 // payment method
 const paymentMethod = ref('mobile_money');
+
+// Function to handle order placement
+const handlePlaceOrder = () => {
+  if (!authStore.userId) {
+    alert("Please log in first!");
+    return;
+  }
+
+  const orderId = orderStore.placeOrder(authStore.userId);
+  if (orderId) {
+    alert(`Order placed successfully! Order ID: ${orderId}`);
+    router.push('/orders/orders'); // Redirect to orders page
+  }
+};
 </script>

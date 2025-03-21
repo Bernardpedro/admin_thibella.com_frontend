@@ -1,44 +1,12 @@
 import { defineStore } from 'pinia';
 import { useCartStore } from '@/stores/cart';
+import { useAuthStore } from '@/stores/auth';
 
 export const useOrderStore = defineStore('order', {
   state: () => ({
-    orders: [] as {
-      id: string;
-      userId: string;
-      items: {  id: string;
-        image: string;
-        imageOfColors: {
-          imageA: string;
-          imageB: string;
-          imageC: string;
-          imageD: string;
-        };
-        name: string;
-        description: string;
-        rating: {
-          stars: number;
-          count: number;
-        };
-        priceCents: number;
-        keywords: string[];
-        quantity: number;
-        type: string;
-        color: {
-          color1: string;
-          color2: string;
-          color3: string;
-          color4: string;
-        };
-        clothingSize: {
-          small: string;
-          medium: string;
-          large: string;
-          xlarge: string;
-        };
-        shoesSize: number;}[];
-      status: string;
-    }[]
+    orders: (import.meta.client && localStorage.getItem('orders')) 
+    ? JSON.parse(localStorage.getItem('orders')!) 
+    : [] as { id: string; userId: string; items: any[]; status: string; }[]
   }),
   getters:{
     getOrdersByUserId: (state) => (userId: string) => {
@@ -47,21 +15,42 @@ export const useOrderStore = defineStore('order', {
 },
   actions: {
     placeOrder(userId: string) {
-      const cartStore = useCartStore();
+      const cartStore = useCartStore(); // Get the cart store
+      const authStore = useAuthStore(); // Get the auth store
 
+      // Check if user is logged in
+      if (!authStore.userId) {
+        alert("Please log in first!");
+        return;
+      }
+
+      // Check if cart is empty
       if (cartStore.cart.length === 0) {
         alert("Your cart is empty!");
         return;
       }
 
+         // Set order status based on Facebook login status
+         let orderStatus = "Pending"; // Default status
+         if (authStore.status === "connected") {
+           orderStatus = "Confirmed"; // If user is logged in, mark as "Confirmed"
+         } else {
+           orderStatus = "Pending Verification"; // If status is different, require verification
+         }
+
+      // Create a new order
       const newOrder = {
         id: "ORD" + Date.now(), // Unique order ID
-        userId,
+        userId: authStore.userId,  
         items: [...cartStore.cart], // Copy all cart items into the order
         status: "Pending"
       };
 
       this.orders.push(newOrder);
+      // Save orders to local storage
+      if (import.meta.client) {
+      localStorage.setItem('orders', JSON.stringify(this.orders));
+      } 
       cartStore.clearCart(); // Clear the cart after order is placed
       return newOrder.id;
     }

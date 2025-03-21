@@ -183,8 +183,13 @@ import { Popover, PopoverButton, PopoverGroup } from "@headlessui/vue";
 import LoginDropdown from "./AccountComp/loginDropdown.vue";
 import {useUiStore} from '@/stores/ui';
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+
+const authStore = useAuthStore();
 // user authentication
 const userStore = useUserStore(); 
+
+// console.log('user on header component', userStore.state.user);
 
 // cart 
 const cartStore = useCartStore();

@@ -8,7 +8,7 @@
       <span class="mx-2">›</span>
       <NuxtLink to="/orders" class="hover:text-blue-500">Orders</NuxtLink>
       <span class="mx-2">›</span>
-      <span class="text-gray-400">ID {{ order.id }}</span>
+      <span v-for="order in userOrders" :key="order.id" class="text-gray-400">ID {{ order.id }}</span>
     </div>
 
     <!-- Order Header -->
@@ -88,7 +88,15 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useOrderStore } from '@/stores/order';
+
+const authStore = useAuthStore();
+const orderStore = useOrderStore();
+
+// Get the logged-in user's orders
+const userOrders = computed(() => orderStore.getOrdersByUserId(authStore.userId));
 
 // You would typically fetch this data from an API using useAsyncData or useFetch
 // For this example, we're using hardcoded data
