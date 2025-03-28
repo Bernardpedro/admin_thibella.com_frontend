@@ -5,54 +5,89 @@ import { useAuthStore } from '@/stores/auth';
 export const useOrderStore = defineStore('order', {
   state: () => ({
     orders: (import.meta.client && localStorage.getItem('orders')) 
-    ? JSON.parse(localStorage.getItem('orders')!) 
-    : [] as { id: string; userId: string; items: any[]; status: string; }[]
+      ? JSON.parse(localStorage.getItem('orders')!) 
+      : [] as { 
+          id: string; 
+          userId: string; 
+          items: any[]; 
+          status: string; 
+          totalAmount?: number;
+          orderDate?: string;
+        }[]
   }),
-  getters:{
+  getters: {
     getOrdersByUserId: (state) => (userId: string) => {
-      return state.orders.filter(order => order.userId === userId);
-  }
-},
+      return state.orders.filter((order) => order.userId === userId);
+    },
+    getOrderById: (state) => (orderId: string) => {
+      return state.orders.find((order: { id: string; userId: string; items: any[]; status: string; totalAmount?: number; orderDate?: string }) => order.id === orderId);
+    }
+  },
   actions: {
-    placeOrder(userId: string) {
-      const cartStore = useCartStore(); // Get the cart store
-      const authStore = useAuthStore(); // Get the auth store
+    async placeOrder(userId: string) {
+      const cartStore = useCartStore();
+      const authStore = useAuthStore();
 
-      // Check if user is logged in
+      // Input validation
       if (!authStore.userId) {
-        alert("Please log in first!");
-        return;
+        throw new Error("Please log in first!");
       }
 
-      // Check if cart is empty
       if (cartStore.cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
+        throw new Error("Your cart is empty!");
       }
 
-         // Set order status based on Facebook login status
-         let orderStatus = "Pending"; // Default status
-         if (authStore.status === "connected") {
-           orderStatus = "Confirmed"; // If user is logged in, mark as "Confirmed"
-         } else {
-           orderStatus = "Pending Verification"; // If status is different, require verification
-         }
+      // Determine order status
+      const orderStatus = authStore.status === "connected" 
+        ? "Confirmed" 
+        : "Pending Verification";
+
+      // Calculate total amount
+      const totalAmount = cartStore.cart.reduce((total, item) => 
+        total + (item.priceCents * item.quantity), 0);
 
       // Create a new order
       const newOrder = {
-        id: "ORD" + Date.now(), // Unique order ID
-        userId: authStore.userId,  
-        items: [...cartStore.cart], // Copy all cart items into the order
-        status: "Pending"
+        id: `ORD${Date.now()}`,
+        userId: authStore.userId,
+        items: [...cartStore.cart],
+        status: orderStatus,
+        totalAmount: totalAmount,
+        orderDate: new Date().toISOString()
       };
 
-      this.orders.push(newOrder);
-      // Save orders to local storage
-      if (import.meta.client) {
-      localStorage.setItem('orders', JSON.stringify(this.orders));
-      } 
-      cartStore.clearCart(); // Clear the cart after order is placed
-      return newOrder.id;
-    }
+      console.log("Placing order:", newOrder);
+
+      try {
+        // Send order to API
+        const response = await apiFetch(`orders`, {
+          method: 'POST', 
+          headers: {
+            "Content-Type": "application/json",
+            'Accept-Language': 'en'
+          },
+          body: JSON.stringify(newOrder), 
+        });
+       console.log("Full response:", response);
+
+        // Update local state
+        this.orders.push({
+          ...newOrder
+        });
+
+        // Update local storage
+        if (import.meta.client) {
+          localStorage.setItem('orders', JSON.stringify(this.orders));
+        }
+
+        // Clear cart
+        cartStore.clearCart();
+
+        return newOrder;
+
+      } catch (error) {
+        throw error;
+      }
+    },
   }
 });

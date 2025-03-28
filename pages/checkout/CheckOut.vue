@@ -103,17 +103,15 @@
               </div>
             </div>
           </div>
-          <NuxtLink to="/orders/orders">
-            <button @click="handlePlaceOrder" class="w-full bg-gray-800 text-white py-2 rounded">Place Order</button>
-          </NuxtLink>
-        </form>
+              <button type="button" @click="handlePlaceOrder" class="w-full bg-gray-800 text-white py-2 rounded">Place Order</button>            
+            </form>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { formatCurrency } from '~/stores/currencyFormatter';
 import { useCartStore } from '~/stores/cart';
 import { useOrderStore } from '~/stores/order';
@@ -129,25 +127,33 @@ const router = useRouter();
 cartStore.loadCart();
 onMounted(() => {
   cartStore.loadCart();
-  console.log("Cart Loaded:", cartStore.cart);
-  console.log("Total Items:", cartStore.cart.length);
-  console.log("Cart Total Price:", cartStore.calculateTotalPrice.value);
 });
 
 // payment method
 const paymentMethod = ref('mobile_money');
 
 // Function to handle order placement
-const handlePlaceOrder = () => {
+const handlePlaceOrder = async () => {
   if (!authStore.userId) {
     alert("Please log in first!");
     return;
   }
 
-  const orderId = orderStore.placeOrder(authStore.userId);
-  if (orderId) {
-    alert(`Order placed successfully! Order ID: ${orderId}`);
-    router.push('/orders/orders'); // Redirect to orders page
+  try {
+    const orderId = await orderStore.placeOrder(authStore.userId);
+    console.log("Order ID received:", orderId.id);
+    
+    if (orderId) {
+      alert(`Order placed successfully! Order ID: ${orderId.id}`);
+      // Use nextTick to ensure DOM updates before navigation
+      await nextTick();
+      router.push(`/orders/${orderId.id}`);
+    }
+  } catch (error) {
+    console.error("Order placement error:", error);
+    alert(error.message || "Failed to place order");
   }
 };
+
+
 </script>

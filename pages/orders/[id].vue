@@ -1,19 +1,21 @@
 
 <!-- pages/orders/[id].vue -->
 <template>
-  <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow">
+  <div>
+  <div  class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow">
     <!-- Breadcrumb Navigation -->
     <div class="flex items-center text-gray-500 mb-6">
       <NuxtLink to="/" class="hover:text-blue-500">Home</NuxtLink>
       <span class="mx-2">›</span>
       <NuxtLink to="/orders" class="hover:text-blue-500">Orders</NuxtLink>
       <span class="mx-2">›</span>
-      <span v-for="order in userOrders" :key="order.id" class="text-gray-400">ID {{ order.id }}</span>
+      <!-- <span v-for="order in userOrders" :key="order.id" class="text-gray-400">ID {{ order.id }}</span> -->
+      <span class="text-gray-400">ID {{ order1.id }}</span>
     </div>
 
     <!-- Order Header -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-medium">Order ID: {{ order.id }}</h1>
+      <h1 class="text-3xl font-medium">Order ID: {{ order1.id }}</h1>
       <div class="flex space-x-2">
         <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg flex items-center">
           <span class="mr-2">Invoice</span>
@@ -31,7 +33,7 @@
     <!-- Order Details -->
     <div class="flex items-center mb-6">
       <div class="mr-16">
-        <span class="text-gray-500">Order date:</span> {{ order.orderDate }}
+        <span class="text-gray-500">Order date:</span> {{ orderDate  }}
       </div>
       <div class="flex items-center text-green-500">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
@@ -85,60 +87,57 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
 import { reactive, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useOrderStore } from '@/stores/order';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const authStore = useAuthStore();
 const orderStore = useOrderStore();
+
+console.log("orderStore:", orderStore);
+
 
 // Get the logged-in user's orders
 const userOrders = computed(() => orderStore.getOrdersByUserId(authStore.userId));
 
-// You would typically fetch this data from an API using useAsyncData or useFetch
-// For this example, we're using hardcoded data
-const order = reactive({
-  id: '334902461',
-  orderDate: 'Feb 16, 2022',
-  estimatedDelivery: 'May 14, 2022',
-  products: [
-    {
-      name: 'MacBook Pro 14"',
-      image: '/macbook.png', // You'll need to add these images to your public folder
-      price: 2599.00,
-      quantity: 1,
-      specifications: ['Space Gray', '32GB', '1 TB']
-    },
-    {
-      name: 'iPad Pro 12.9"',
-      image: '/ipad.png',
-      price: 2399.00,
-      quantity: 1,
-      specifications: ['Space Gray', '2TB', 'Cellular']
-    },
-    {
-      name: 'AirPods Max',
-      image: '/airpods.png',
-      price: 549.00,
-      quantity: 1,
-      specifications: ['Space Gray']
-    }
-  ],
-  payment: {
-    method: 'Visa',
-    lastDigits: '56',
-    icon: '/visa.png'
-  },
-  delivery: {
-    address: {
-      line1: '847 Jewess Bridge Apt. 174',
-      city: 'London',
-      country: 'UK'
-    },
-    phone: '474-769-3919'
-  }
+console.log("User Orders:", userOrders.value);
+// console.log('userOrders id noneho:', userOrders.value[0].id);
+console.log('userOrders ids:', userOrders.value.map(order => order.id));
+
+// Find the order that matches the route ID 
+const order1 = userOrders.value.find(o => String(o.id) === String(route.params.id));
+console.log('order1:', order1);
+console.log('order1 id:', order1.id);
+console.log('ordered items',order1.items);
+console.log('order date:', order1.orderDate);
+
+
+const dateObj = new Date(order1.orderDate);
+
+const formattedDate = dateObj.toLocaleDateString('en-US', {
+  weekday: 'short', // "Fri"
+  month: 'short',   // "Mar"
+  day: '2-digit',   // "28"
+  year: 'numeric'   // "2025"
 });
+
+const orderDate = formattedDate;
+
+console.log(formattedDate); // "Fri, Mar 28, 2025"
+
+
+
+// Find the order that matches the route ID
+console.log("Route ID:", route.params.id);
+
+const order = ref({id: '0', orderDate: '', estimatedDelivery: '', products: [], payment: {}, delivery: {address: {line1: '', city: '', country: ''}, phone: ''}});
+
+
+
 </script>

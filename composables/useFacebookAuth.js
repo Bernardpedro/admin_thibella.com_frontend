@@ -1,10 +1,10 @@
-
 import { useUserStore } from "~/stores/user";
 import { useAuthStore } from '@/stores/auth';
 
-const userStore = useUserStore(); // Access the store
-
 export const loginWithFacebook = () => {
+  const userStore = useUserStore();
+  const authStore = useAuthStore();
+  
   if (!window.FB) {
     alert("Facebook SDK not loaded!");
     return;
@@ -16,13 +16,13 @@ export const loginWithFacebook = () => {
         console.log("Logged in!", response);
         console.log("Logged in Id!", response.authResponse.userID);
         console.log("Logged in status!", response.status);
-          const authStore = useAuthStore();
-          authStore.setUser({
-            userId: response.authResponse.userID, 
-            status: response.status
-          });
-          
-
+        console.log("token", response.t)
+        
+        authStore.setUser({
+          userId: response.authResponse.userID, 
+          status: response.status
+        });
+        
         getUserInfo();
         window.open("https://your-website.com/dashboard", "_blank");
       } else {
@@ -34,18 +34,21 @@ export const loginWithFacebook = () => {
 };
 
 export const getUserInfo = () => {
+  const userStore = useUserStore(); // Move store access inside the function
+  
   window.FB.api("/me", { fields: "id,name,email,picture" }, (response) => {
     console.log("User Info:", response);
-    userStore.setUser(response); // Store user globally
+    userStore.setUser(response);
   });
 };
 
 export const logout = () => {
+  const userStore = useUserStore(); // Move store access inside the function
+  
   if (!window.FB) return;
 
   window.FB.logout(() => {
     console.log("User logged out");
-    userStore.clearUser(); // Clear user from the store
+    userStore.clearUser();
   });
 };
-
