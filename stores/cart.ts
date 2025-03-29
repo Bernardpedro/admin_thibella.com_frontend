@@ -56,6 +56,7 @@ export const useCartStore = defineStore('cart', {
     cart: [] as Product[] ,
     selectedCurrency: ref("RWF"),
     selectedImage: ref(""),
+    selectedShipping: ref("Standard"),
   }),
   getters: {
     cartTotalQuantity: (state) => computed(() =>{
@@ -73,6 +74,20 @@ export const useCartStore = defineStore('cart', {
       const convertedPrice = parseFloat((priceCents * exchangeRates[this.selectedCurrency]).toFixed(2));
       return convertedPrice;
     },
+      getShippingCost() {
+        switch (this.selectedShipping) {
+          case "Standard":
+            return "Free";
+          case "Express":
+            return "$4"
+          case "Overnight":
+            return "$12"
+          default:
+            return "Free";
+        }
+      },
+    // set image   
+    
     setSelectedImage(imageUrl: string) {
       this.selectedImage = imageUrl;
 
@@ -80,6 +95,16 @@ export const useCartStore = defineStore('cart', {
         localStorage.setItem('selectedImage', imageUrl);
       }
       this.updateLocalStorage();
+    },
+    // set shipping 
+    setShipping(shipping: string){ 
+      this.selectedShipping = shipping;
+
+      if (import.meta.client) {
+        localStorage.setItem('selectedShipping', shipping);
+      }
+      this.updateLocalStorage();
+
     },
     setCurrency(newCurrency: string) {
       this.selectedCurrency = newCurrency;
@@ -90,26 +115,33 @@ export const useCartStore = defineStore('cart', {
       
       this.updateLocalStorage();
     },
+// loading cart from local storage
 
     loadCart(){
       if(import.meta.client){
     const  storedCart = localStorage.getItem('cart');
     const storedCurrency = localStorage.getItem('selectedCurrency');
     const storedImage = localStorage.getItem('selectedImage');
+    const storedShipping = localStorage.getItem('selectedShipping');
 
     this.cart = storedCart ? JSON.parse(storedCart) : [];
     this.selectedCurrency = storedCurrency ? storedCurrency : "RWF";  
     this.selectedImage = storedImage ? storedImage : "";
+    this.selectedShipping = storedShipping ? storedShipping : "";
 
     this.updateLocalStorage();
     
     }
   },
+
+  // update local storage
+
   updateLocalStorage() {
     if (import.meta.client) {
       localStorage.setItem('cart', JSON.stringify(this.cart)); 
       localStorage.setItem('selectedCurrency', this.selectedCurrency);
       localStorage.setItem('selectedImage', this.selectedImage);
+      localStorage.setItem('selectedShipping', this.selectedShipping);
     }
   },
     addToCart(product: Product) {

@@ -39,7 +39,7 @@
             </div>
             <div class="flex justify-between">
               <span>Shipping:</span>
-              <span>$0.00</span>
+              <span>{{ cartStore.getShippingCost() }}</span>
             </div>
             <div class="flex justify-between font-semibold mt-2">
               <span>Total:</span>
@@ -145,7 +145,7 @@ const handlePlaceOrder = async () => {
     
     if (orderId) {
       alert(`Order placed successfully! Order ID: ${orderId.id}`);
-      // Use nextTick to ensure DOM updates before navigation
+      //  nextTick to ensure DOM updates before navigation
       await nextTick();
       router.push(`/orders/${orderId.id}`);
     }

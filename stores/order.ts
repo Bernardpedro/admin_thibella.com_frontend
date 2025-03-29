@@ -17,7 +17,7 @@ export const useOrderStore = defineStore('order', {
   }),
   getters: {
     getOrdersByUserId: (state) => (userId: string) => {
-      return state.orders.filter((order) => order.userId === userId);
+      return state.orders.filter((order: { id: string; userId: string; items: any[]; status: string; totalAmount?: number; orderDate?: string }) => order.userId === userId);
     },
     getOrderById: (state) => (orderId: string) => {
       return state.orders.find((order: { id: string; userId: string; items: any[]; status: string; totalAmount?: number; orderDate?: string }) => order.id === orderId);

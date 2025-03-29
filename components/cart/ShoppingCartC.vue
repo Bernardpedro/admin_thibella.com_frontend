@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { useCartStore } from "@/stores/cart"; 
 import { formatCurrency } from "@/stores/currencyFormatter";
 
+
 interface Product {
   id: string; 
   image: string;
@@ -81,7 +82,7 @@ const selectedShipping = ref("");
                       </select>
                     </span>
                     <span class="p-0 text-sm bg-gray-200 rounded">
-                    <select v-model="selectedShipping" class="border p-1 w-[200px] rounded">
+                    <select v-model="cartStore.selectedShipping" class="border p-1 w-[200px] rounded">
                       <option disabled value="">Choose Shipping</option>
                       <option value="Standard">Standard (5-7 days)</option>
                       <option value="Express">Express (2-3 days)</option>
@@ -126,7 +127,7 @@ const selectedShipping = ref("");
 
                 <div class="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Shipping</span>
-                  <span>Free</span>
+                  <span>{{ cartStore.getShippingCost() }}</span>
                 </div>
 
                 <div class="flex justify-between text-gray-900 dark:text-white font-bold">
