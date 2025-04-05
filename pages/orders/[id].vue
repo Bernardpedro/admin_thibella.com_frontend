@@ -37,7 +37,11 @@
       </div>
       <div class="flex items-center text-green-500">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
-        <span>Estimated delivery: {{ order.estimatedDelivery }}</span>
+        <!-- 
+        the estimated time is comming from cart store while it should came from the order store .
+        May this is the big issues!!!!
+          -->
+        <span>Estimated delivery: {{ estimatedTime }}</span>
       </div>
     </div>
 
@@ -45,62 +49,71 @@
 
     <!-- Products -->
     <div class="space-y-6">
-      <div v-for="(product, index) in order.products" :key="index" class="flex">
+      <div v-for="(product, index) in order1.items" :key="index" class="flex">
         <div class="w-24 h-24 bg-gray-50 rounded-lg flex items-center justify-center mr-4">
           <img :src="product.image" :alt="product.name" class="max-w-full max-h-full object-contain">
         </div>
         <div class="flex-grow">
           <h3 class="text-xl font-medium">{{ product.name }}</h3>
           <div class="text-gray-500">
-            {{ product.specifications.join(' | ') }}
+            {{ product.description }}
           </div>
         </div>
         <div class="text-right">
-          <div class="text-xl">${{ product.price.toFixed(2) }}</div>
+          <div class="text-xl">{{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency)     }}</div>
           <div class="text-gray-500">Qty: {{ product.quantity }}</div>
         </div>
       </div>
     </div>
 
-    <hr class="border-gray-200 my-6">
+    <!-- <hr class="border-gray-200 my-6"> -->
 
     <!-- Payment and Delivery Information -->
-    <div class="flex">
+    <!-- <div class="flex"> -->
       <!-- Payment Section -->
-      <div class="w-1/2">
+      <!-- <div class="w-1/2">
         <h3 class="text-xl font-medium mb-4">Payment</h3>
         <div class="flex items-center">
-          <span class="mr-2">{{ order.payment.method }} **{{ order.payment.lastDigits }}</span>
-          <img :src="order.payment.icon" class="h-6" alt="Payment method">
+          <span class="mr-2">{{ order1.payment.method }} **{{ order1.payment.lastDigits }}</span>
+          <img :src="order1.payment.icon" class="h-6" alt="Payment method">
         </div>
-      </div>
+      </div> -->
 
       <!-- Delivery Section -->
-      <div class="w-1/2">
+      <!-- <div class="w-1/2">
         <h3 class="text-xl font-medium mb-4">Delivery</h3>
         <div>
           <div class="font-medium text-gray-500">Address</div>
-          <div>{{ order.delivery.address.line1 }}</div>
-          <div>{{ order.delivery.address.city }}, {{ order.delivery.address.country }}</div>
-          <div>{{ order.delivery.phone }}</div>
+          <div>{{ order1.delivery.address.line1 }}</div>
+          <div>{{ order1.delivery.address.city }}, {{ order1.delivery.address.country }}</div>
+          <div>{{ order1.delivery.phone }}</div>
         </div>
-      </div>
+      </div> -->
     </div>
-  </div>
+  <!-- </div> -->
 </div>
 </template>
 
 <script setup>
-import { reactive, computed } from 'vue';
+import {  computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useOrderStore } from '@/stores/order';
 import { useRoute } from 'vue-router';
+import { useCartStore } from '@/stores/cart';
 
+const cartStore = useCartStore(); 
 const route = useRoute();
 const authStore = useAuthStore();
 const orderStore = useOrderStore();
 
 console.log("orderStore:", orderStore);
+
+// ESTIMATED DELIVERY DATE : checking the selected shipping and the estimated time
+
+
+console.log("Initial shipping method:", cartStore.selectedShipping);
+console.log("Initial estimated delivery:", cartStore.getEstimatedDeliveryDate());
+const estimatedTime = cartStore.getEstimatedDeliveryDate(); // make attention here, because the estimated time is coming from the cart store while it should come from the order store. I have to ask Senior(P.Bianca) or Serge about this.
 
 
 // Get the logged-in user's orders
@@ -112,6 +125,12 @@ console.log('userOrders ids:', userOrders.value.map(order => order.id));
 
 // Find the order that matches the route ID 
 const order1 = userOrders.value.find(o => String(o.id) === String(route.params.id));
+
+if (!order1) {
+  console.error('Order not found for id:', route.params.id);
+  // You might want to handle this case, perhaps redirect or show an error message
+}
+
 console.log('order1:', order1);
 console.log('order1 id:', order1.id);
 console.log('ordered items',order1.items);
@@ -131,13 +150,8 @@ const orderDate = formattedDate;
 
 console.log(formattedDate); // "Fri, Mar 28, 2025"
 
-
-
 // Find the order that matches the route ID
 console.log("Route ID:", route.params.id);
-
-const order = ref({id: '0', orderDate: '', estimatedDelivery: '', products: [], payment: {}, delivery: {address: {line1: '', city: '', country: ''}, phone: ''}});
-
 
 
 </script>

@@ -60,10 +60,9 @@
             <h3 class="font-semibold">Phone Number</h3>
             <div class="flex gap-2 mt-2">
               <select class="border p-2 rounded">
-                <option value="+1">+1</option>
-                <option value="+44">+44</option>
-                <option value="+250">+250</option>
-                <option value="+91">+91</option>
+                <option v-for="country in countryCodes" :key="country.code" :value="country.code">
+                  {{country.flag}} {{country.code}}
+                </option>
                 <!-- Add more country codes as needed -->
               </select>
               <input type="text" placeholder="Phone Number" class="border p-2 w-full rounded">
@@ -116,7 +115,22 @@ import { formatCurrency } from '~/stores/currencyFormatter';
 import { useCartStore } from '~/stores/cart';
 import { useOrderStore } from '~/stores/order';
 import { useAuthStore } from '~/stores/auth';
-import { useRouter } from 'vue-router';
+
+// Add this to your <script setup> section
+const countryCodes = [
+  { code: '+1', country: 'USA', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+33', country: 'France', flag: '🇫🇷' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪' },
+  { code: '+250', country: 'Rwanda', flag: '🇷🇼' },
+  { code: '+254', country: 'Kenya', flag: '🇰🇪' },
+  { code: '+255', country: 'Tanzania', flag: '🇹🇿' },
+  { code: '+256', country: 'Uganda', flag: '🇺🇬' },
+  // Add more as needed
+];
+
+const selectedPhoneCode = ref('+250'); // Default to Rwanda code
+
 
 const orderStore = useOrderStore();
 const cartStore = useCartStore();

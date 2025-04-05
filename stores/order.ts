@@ -81,7 +81,7 @@ export const useOrderStore = defineStore('order', {
         }
 
         // Clear cart
-        cartStore.clearCart();
+        // cartStore.clearCart();
 
         return newOrder;
 

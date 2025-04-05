@@ -28,6 +28,13 @@ watch(() => cartStore.selectedCurrency, (newCurrency) => {
   cartStore.setCurrency(newCurrency); 
 });
 
+// call back on selection of shipping
+
+watch(() => cartStore.selectedShipping, (newSelectedShipping) => {
+  console.log("Shipping changed to:", newSelectedShipping);
+  cartStore.setShipping(newSelectedShipping); // save the change of new shipping
+});
+
 cartStore.loadCart();
 
 // Functions to handle quantity changes
@@ -38,7 +45,7 @@ const decrement = (product: Product) => {
 
 //  user selections
 const selectedColor = ref("");
-const selectedShipping = ref("");
+
 
 </script>
 

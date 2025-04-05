@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { apiFetch } from "~/utils/api";
 import { ref, onMounted } from "vue"; 
-import { formatCurrency } from "@/stores/currencyFormatter";
+// import { formatCurrency } from "@/stores/currencyFormatter"; // Removed as it is not used
 
 export type Product = {
   id: string;
@@ -74,6 +74,8 @@ export const useCartStore = defineStore('cart', {
       const convertedPrice = parseFloat((priceCents * exchangeRates[this.selectedCurrency]).toFixed(2));
       return convertedPrice;
     },
+
+    // shipping and handling cost
       getShippingCost() {
         switch (this.selectedShipping) {
           case "Standard":
@@ -86,8 +88,39 @@ export const useCartStore = defineStore('cart', {
             return "Free";
         }
       },
+      // delivery time
+
+getEstimatedDeliveryDate() {
+  if (!this.selectedShipping) return '';
+  
+  const today = new Date();
+  let deliveryDate = new Date(today);
+  
+  switch (this.selectedShipping) {
+    case 'Standard':
+      deliveryDate.setDate(today.getDate() + 7); // 5-7 days
+      break;
+    case 'Express':
+      deliveryDate.setDate(today.getDate() + 3); // 2-3 days
+      break;
+    case 'Overnight':
+      deliveryDate.setDate(today.getDate() + 1); // 1 day
+      break;
+    default:
+      return '';
+  }
+  
+  // Format the date
+  return deliveryDate.toLocaleDateString('en-US', { 
+    weekday: 'long',
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+},
+
     // set image   
-    
+
     setSelectedImage(imageUrl: string) {
       this.selectedImage = imageUrl;
 
@@ -127,7 +160,7 @@ export const useCartStore = defineStore('cart', {
     this.cart = storedCart ? JSON.parse(storedCart) : [];
     this.selectedCurrency = storedCurrency ? storedCurrency : "RWF";  
     this.selectedImage = storedImage ? storedImage : "";
-    this.selectedShipping = storedShipping ? storedShipping : "";
+    this.selectedShipping = storedShipping ? storedShipping :  "Standard";
 
     this.updateLocalStorage();
     
