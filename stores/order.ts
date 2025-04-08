@@ -13,6 +13,28 @@ export const useOrderStore = defineStore('order', {
           status: string; 
           totalAmount?: number;
           orderDate?: string;
+          contactInfo: {
+            email: string;
+            phone: string;
+          };
+          shippingAddress: {
+            country: string;
+            fullName: string;
+            addressLine1: string;
+            addressLine2?: string;
+            city: string;
+            state?: string;
+            zipCode?: string;
+          };
+          payment: {
+            method: string;
+            details: 
+              | { mobileMoneyNumber: string }
+              | { nameOnCard: string; cardNumber: string; cardExpiry: string; cardCVC: string };
+          };
+          subscription: boolean;
+          promoCode?: string;
+          currency: string;
         }[]
   }),
   getters: {
@@ -46,6 +68,15 @@ export const useOrderStore = defineStore('order', {
       const totalAmount = cartStore.cart.reduce((total, item) => 
         total + (item.priceCents * item.quantity), 0);
 
+    // Get order metadata if available
+    let orderMetadata = {};
+    if (import.meta.client && localStorage.getItem('lastOrderMetadata')) {
+      orderMetadata = JSON.parse(localStorage.getItem('lastOrderMetadata')!);
+      // Clear the metadata after retrieving it
+      localStorage.removeItem('lastOrderMetadata');
+    }
+
+
       // Create a new order
       const newOrder = {
         id: `ORD${Date.now()}`,
@@ -53,14 +84,15 @@ export const useOrderStore = defineStore('order', {
         items: [...cartStore.cart],
         status: orderStatus,
         totalAmount: totalAmount,
-        orderDate: new Date().toISOString()
+        orderDate: new Date().toISOString(),
+        ...orderMetadata // Add the metadata to the order
       };
 
       console.log("Placing order:", newOrder);
 
       try {
         // Send order to API
-        const response = await apiFetch(`orders`, {
+        const response = await apiFetch(`orders2`, {
           method: 'POST', 
           headers: {
             "Content-Type": "application/json",

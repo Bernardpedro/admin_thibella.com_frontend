@@ -66,31 +66,31 @@
       </div>
     </div>
 
-    <!-- <hr class="border-gray-200 my-6"> -->
+    <hr class="border-gray-200 my-6">
 
     <!-- Payment and Delivery Information -->
-    <!-- <div class="flex"> -->
+    <div class="flex">
       <!-- Payment Section -->
-      <!-- <div class="w-1/2">
+      <div class="w-1/2">
         <h3 class="text-xl font-medium mb-4">Payment</h3>
         <div class="flex items-center">
-          <span class="mr-2">{{ order1.payment.method }} **{{ order1.payment.lastDigits }}</span>
-          <img :src="order1.payment.icon" class="h-6" alt="Payment method">
+          <span class="mr-2">{{ order1.payment.method }} <!--**{{ order1.payment.lastDigits }}--> </span>
+          <!-- <img :src="order1.payment.icon" class="h-6" alt="Payment method"> -->
         </div>
-      </div> -->
+      </div>
 
       <!-- Delivery Section -->
-      <!-- <div class="w-1/2">
+      <div class="w-1/2">
         <h3 class="text-xl font-medium mb-4">Delivery</h3>
         <div>
           <div class="font-medium text-gray-500">Address</div>
-          <div>{{ order1.delivery.address.line1 }}</div>
-          <div>{{ order1.delivery.address.city }}, {{ order1.delivery.address.country }}</div>
-          <div>{{ order1.delivery.phone }}</div>
+          <div>{{ order1.shippingAddress.addressLine1 }}</div>
+          <div>{{ order1.shippingAddress.city }}, {{ order1.shippingAddress.country }}</div>
+          <div>{{ order1.contactInfo.phone }}</div>
         </div>
-      </div> -->
+      </div>
     </div>
-  <!-- </div> -->
+  </div>
 </div>
 </template>
 
