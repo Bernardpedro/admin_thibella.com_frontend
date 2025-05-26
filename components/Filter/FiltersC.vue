@@ -128,7 +128,7 @@ const  data = ref([]); // `data` is a ref
 const f =ref([])
 onMounted(async () => {
   try {
-    const res = await apiFetch('products',{method:'GET', headers: {'Content-Type': 'Application/json','Accept-Language': 'en'}}); // Fetch data from the API
+    const res = await apiFetch('api/products',{method:'GET', headers: {'Content-Type': 'Application/json','Accept-Language': 'en'}}); // Fetch data from the API
     data.value = res;
      f.value=data.value?.data ?? [];
   } catch (error) {

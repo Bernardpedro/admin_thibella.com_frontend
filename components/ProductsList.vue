@@ -28,13 +28,23 @@
         </div>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="loading" class="mx-auto max-w-screen-xl px-4 2xl:px-0 text-center">
+        <p class="text-gray-600 dark:text-gray-400">Loading products...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-if="error" class="mx-auto max-w-screen-xl px-4 2xl:px-0 text-center">
+        <p class="text-red-600 dark:text-red-400">Error loading products: {{ error }}</p>
+      </div>
+
       <!-- Product Grid -->
-      <div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
+      <div class="mx-auto max-w-screen-xl px-4 2xl:px-0" v-if="!loading && !error">
         <div class="mb-4 grid gap-6 sm:grid-cols-2 md:mb-8 lg:grid-cols-3 xl:grid-cols-4">
           <!-- Product Card -->
           <div
             v-for="(product, index) in displayedProducts"
-            :key="index"
+            :key="product.id || index"
             class="group block rounded-lg border border-gray-200 bg-white p-4 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800"
           >
             <!-- Product Title -->
@@ -49,11 +59,11 @@
             <!-- Product Image -->
             <div 
             @click="goToProductDetails(product.id)"
-            class="h-48 w-full overflow-hidden rounded-md">
+            class="h-48 w-full overflow-hidden rounded-md cursor-pointer">
               <NuxtLink to="/products/ProductOverView">
               
               <img
-                class=" hidden h-full w-full  transition-opacity duration-300 group-hover:opacity-90 dark:block"
+                class="hidden h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-90 dark:block"
                 :src="product.image"
                 :alt="product.name"
               />
@@ -118,69 +128,133 @@
             </div>
           </div>
         </div>
+
+        <!-- No Products Found -->
+        <div v-if="displayedProducts.length === 0" class="text-center py-8">
+          <p class="text-gray-600 dark:text-gray-400">No products found.</p>
+        </div>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, computed,  onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { apiFetch } from '~/utils/api';
 import { useCartStore } from '~/stores/cart';
 import { useRouter } from "vue-router";
 
-const router = useRouter();// vue router 
+const router = useRouter();
 
-const  data = ref([]); // `data` is a ref 
-const f =ref([])
-  onMounted(async () => {
+// Reactive state
+const data = ref([]);
+const f = ref([]);
+const loading = ref(true);
+const error = ref(null);
+
+onMounted(async () => {
   try {
-    const res = await apiFetch('products2',{method:'GET', headers: {'Content-Type': 'Application/json','Accept-Language': 'en'}}); // Fetch data from the API
-    data.value = res;
-     f.value=data.value?.data ?? [];
-     localStorage.setItem("products", JSON.stringify(f.value));
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-});
-
-  const productsData = computed(() => {
-    return data.value?.data ?? []; 
-  });
-
-  // search for products
-  const query = ref('');
-  const filteredItems = computed(() => {
-    if (!query.value) {
-      return productsData.value.length > 0 ? productsData.value : f.value;
+    loading.value = true;
+    error.value = null;
+    
+    // Fetch fresh data from API
+    console.log("Fetching products from API...");
+    const res = await apiFetch('api/products', {
+      method: 'GET', 
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept-Language': 'en'
+      }
+    });
+    
+    // Handle different possible response structures
+    let products = [];
+    
+    if (Array.isArray(res)) {
+      products = res;
+    } else if (res && res.data && Array.isArray(res.data)) {
+      products = res.data;
+    } else if (res && res.products && Array.isArray(res.products)) {
+      products = res.products;
+    } else if (res && typeof res === 'object') {
+      const arrayKeys = Object.keys(res).filter(key => Array.isArray(res[key]));
+      if (arrayKeys.length > 0) {
+        products = res[arrayKeys[0]];
+      }
     }
-    return productsData.value.filter((product) => {
-      return product.name.toLowerCase().includes(query.value.toLowerCase());
-    });
+    
+    if (products.length > 0) {
+      data.value = res;
+      f.value = products;
+      
+      // Cache the products
+      localStorage.setItem("api/products", JSON.stringify(products));
+    } else {
+      console.warn("No products found in API response");
+      if (f.value.length === 0) {
+        error.value = "No products available";
+      }
+    }
+    
+  } catch (err) {
+    console.error('Error fetching data:', err);
+    error.value = err.message || 'Failed to load products';
+    
+    // If API fails, try to use cached data
+    const cachedProducts = localStorage.getItem("api/products");
+    if (cachedProducts && f.value.length === 0) {
+      try {
+        f.value = JSON.parse(cachedProducts);
+        console.log("Using cached products due to API error:", f.value);
+        error.value = null; // Clear error if we have cached data
+      } catch (parseError) {
+        console.error("Failed to parse cached products:", parseError);
+      }
+    }
+  } finally {
+    loading.value = false;
+  }
 });
 
-  // sorting options
-  
-  const sortOption = useState('sortOption', () => 'price-desc');
+const productsData = computed(() => {
+  // Use f.value (cached/processed products) as the primary source
+  return f.value.length > 0 ? f.value : (data.value?.data ?? []);
+});
 
-  const displayedProducts = computed(() =>{
-    return [...filteredItems.value].sort((a, b) => {
-      if (sortOption.value === 'price-asc') return a.priceCents - b.priceCents;
-      if (sortOption.value === 'price-desc') return b.priceCents - a.priceCents;
-      if (sortOption.value === 'name-asc') return a.name.localeCompare(b.name);
-      if (sortOption.value === 'name-desc') return b.name.localeCompare(a.name);
-      return 0;
-    });
-  }) 
-
-  // router 
-
-  const goToProductDetails = (id) => {
-    router.push(`/products/${id}`);
+// Search functionality
+const query = ref('');
+const filteredItems = computed(() => {
+  const products = productsData.value;
+  if (!query.value) {
+    return products;
   }
-  //cart 
+  return products.filter((product) => {
+    return product.name && product.name.toLowerCase().includes(query.value.toLowerCase());
+  });
+});
 
-  const cartStore = useCartStore();
+// Sorting options
+const sortOption = useState('sortOption', () => 'price-desc');
+
+const displayedProducts = computed(() => {
+  return [...filteredItems.value].sort((a, b) => {
+    if (sortOption.value === 'price-asc') return (a.priceCents || 0) - (b.priceCents || 0);
+    if (sortOption.value === 'price-desc') return (b.priceCents || 0) - (a.priceCents || 0);
+    if (sortOption.value === 'name-asc') return (a.name || '').localeCompare(b.name || '');
+    if (sortOption.value === 'name-desc') return (b.name || '').localeCompare(a.name || '');
+    return 0;
+  });
+});
+
+// Navigation
+const goToProductDetails = (id) => {
+  if (id) {
+    router.push(`api/products/${id}`);
+  }
+};
+
+// Cart store
+const cartStore = useCartStore();
 </script>
 
 <style scoped>
