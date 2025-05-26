@@ -17,11 +17,12 @@ onMounted(async () => {
 
     // Check if products exist in localStorage
     const cachedProducts = localStorage.getItem("products");
+    console.log("Cached products:", cachedProducts);
 
     if (cachedProducts) {
       allProducts.value = JSON.parse(cachedProducts);
     } else {
-      const response = await apiFetch("products2", {
+      const response = await apiFetch("api/products", {
         method: "GET",
         headers: {
           "Content-Type": "Application/json",

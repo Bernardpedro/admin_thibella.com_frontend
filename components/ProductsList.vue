@@ -158,7 +158,7 @@ onMounted(async () => {
     error.value = null;
     
     // Fetch fresh data from API
-    console.log("Fetching products from API...");
+    // console.log("Fetching products from API...");
     const res = await apiFetch('api/products', {
       method: 'GET', 
       headers: {
@@ -188,7 +188,7 @@ onMounted(async () => {
       f.value = products;
       
       // Cache the products
-      localStorage.setItem("api/products", JSON.stringify(products));
+      localStorage.setItem("products", JSON.stringify(products));
     } else {
       console.warn("No products found in API response");
       if (f.value.length === 0) {
@@ -249,12 +249,15 @@ const displayedProducts = computed(() => {
 // Navigation
 const goToProductDetails = (id) => {
   if (id) {
-    router.push(`api/products/${id}`);
+    router.push(`products/${id}`);
   }
 };
 
 // Cart store
 const cartStore = useCartStore();
+
+// displayed products
+console.log("Displayed Products:", displayedProducts.value);
 </script>
 
 <style scoped>
