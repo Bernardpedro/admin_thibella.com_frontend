@@ -1,76 +1,100 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { apiFetch } from "~/utils/api";
 import { useCartStore } from '~/stores/cart';
 
 const cartStore = useCartStore();
 
 const route = useRoute();
-const allProducts = ref([]);
 const product = ref(null);
+const loading = ref(true);
+const error = ref(null);
 
 cartStore.loadCart();
 
 onMounted(async () => {
   try {
+    loading.value = true;
     const productId = route.params.id;
 
-    // Check if products exist in localStorage
-    const cachedProducts = localStorage.getItem("products");
-    console.log("Cached products:", cachedProducts);
-
-    if (cachedProducts) {
-      allProducts.value = JSON.parse(cachedProducts);
-    } else {
-      const response = await apiFetch("api/products", {
-        method: "GET",
-        headers: {
-          "Content-Type": "Application/json",
-          "Accept-Language": "en",
-        },
-      });
-
-      allProducts.value = response.data || [];
-
-      // Save data to localStorage
-     // localStorage.setItem("products", JSON.stringify(allProducts.value));
+    // Validate UUID format (optional but recommended)
+    if (!productId || typeof productId !== 'string') {
+      throw new Error('Invalid product ID');
     }
 
-    // Find the product by ID
-    product.value = allProducts.value.find(p => String(p.id) === String(productId));
-  } catch (error) {
-    console.error("Error fetching data:", error);
+    // Fetch single product directly from backend
+    const response = await apiFetch(`api/products/${productId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept-Language": "en",
+      },
+    });
+
+    // Your Spring controller returns the ProductDTO directly, not wrapped in a data property
+    product.value = response;
+    console.log("product from data loader",product.value);
+  } catch (err) {
+    console.error("Error fetching product:", err);
+    if (err.status === 404) {
+      error.value = "Product not found";
+    } else {
+      error.value = "Failed to load product details";
+    }
+  } finally {
+    loading.value = false;
   }
 });
 
-// Function to clear local storage and refresh data
-const clearCacheAndReload = () => {
-  localStorage.removeItem("products");
-  location.reload();
-};
-
-// stars
- const ratingStars = product.value
+// Initialize selected image when product loads
+watch(product, (newProduct) => {
+  if (newProduct) {
+    // Set initial image
+    if (newProduct.imageOfColors?.length > 0) {
+      cartStore.setSelectedImage(newProduct.imageOfColors[0]);
+    }
+  }
+});
 </script>
 
 <template>
-  <div v-if="product" class="container mx-auto p-4">
+  <!-- Loading State -->
+  <div v-if="loading" class="container mx-auto p-4 text-center">
+    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+    <p class="mt-4 text-gray-600">Loading product details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div v-else-if="error" class="container mx-auto p-4 text-center">
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <p>{{ error }}</p>
+      <button 
+        @click="$router.go(-1)" 
+        class="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+      >
+        Go Back
+      </button>
+    </div>
+  </div>
+
+  <!-- Product Details -->
+  <div v-else-if="product" class="container mx-auto p-4">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
       <!-- Image Gallery (Top-Left) -->
       <div class="self-start">
         <img 
-          :src="cartStore.selectedImage" 
+          :src="product.image" 
           alt="Product" 
           class="w-full rounded-lg shadow-lg"
         />
         <div class="flex mt-2 space-x-2">
-          <img
+          <!-- <img
             v-for="(image, index) in product.imageOfColors"
             :key="index"
             :src="image"
-            @click="cartStore.setSelectedImage(image)"
             class="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 hover:border-gray-500"
-          />
+            :class="{ 'border-blue-500': cartStore.selectedImage === image }"
+          /> -->
         </div>
       </div>
 
@@ -80,92 +104,83 @@ const clearCacheAndReload = () => {
         <p class="text-gray-500">{{ product.description }}</p>
         <div class="flex items-center mt-2">
           <span class="text-yellow-500">
-            <!-- <img :src= "" alt =""> il faut ajouter rating stars from api dog -->
+            <!-- Add rating stars display here when available from API -->
+            ⭐⭐⭐⭐⭐
           </span>
           <span class="ml-2 text-gray-600">(19 orders)</span>
         </div>
-        <p class="text-3xl text-blue-600 font-bold my-4">{{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency)}} </p>
+        <p class="text-3xl text-blue-600 font-bold my-4">
+          {{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency) }}
+        </p>
 
-        <!-- Color Selection -->
-        <div>
-          <p class="font-semibold">Color:</p>
+        <!-- Display Colors (Fixed: changed from product.color to product.colors) -->
+        <div v-if="product.colors?.length">
+          <p class="font-semibold">Available Colors:</p>
           <div class="flex space-x-2">
-            <button
-              v-for="color in product.color"
+            <span
+              v-for="color in product.colors"
               :key="color"
-              @click="selectedColor = color"
-              class="px-4 py-2 border rounded-lg"
-              :class="{ 'border-black': selectedColor === color }"
+              class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
             >
+            <button v-if="color == 'blue'" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors">
               {{ color }}
             </button>
-          </div>
-        </div>
-
-        <!-- Size Selection -->
-        <div class="mt-4">
-          <p class="font-semibold">Shoe Size:</p>
-          <div class="flex space-x-2">
-            <button
-              v-for="size in product.clothingSize"
-              :key="size"
-              @click="selectedSize = size"
-              class="px-4 py-2 border rounded-lg"
-              :class="{ 'border-black': selectedSize === size }"
-            >
-              {{ size }}
+            <button v-else-if="color == 'red'" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors">
+              {{ color }}
             </button>
+            <button v-else-if="color == 'white'" class="bg-white-500 text-black px-2 py-1 rounded hover:bg-black hover:text-white transition-colors">
+              {{ color }}
+            </button>
+            <button v-else-if="color == 'green'" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors">
+              {{ color }}
+            </button>
+            <button v-else-if="color == 'yellow'" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition-colors">
+              {{ color }}
+            </button>
+            </span>
           </div>
         </div>
 
-        <!-- Quantity Selector -->
-        <!-- <div class="mt-4 flex items-center space-x-4">
-          <button @click="decreaseQuantity" class="px-3 py-2 border rounded-lg">-</button>
-          <span>{{ quantity }}</span>
-          <button @click="increaseQuantity" class="px-3 py-2 border rounded-lg">+</button>
-        </div> -->
+        <!-- Display Sizes (Fixed: changed from product.clothingSize?.length to check if it's not empty) -->
+        <div v-if="product.clothingSize && product.clothingSize.trim() !== ''" class="mt-4">
+          <p class="font-semibold">Available Size:</p>
+          <div class="flex space-x-2 flex-wrap">
+            <span
+              class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
+            >
+              {{ product.clothingSize }}
+            </span>
+          </div>
+        </div>
 
-        <!-- <p class="mt-2 text-sm text-gray-500">
-          Estimated arrival: 1st Apr - 4th Apr (Shipping from China)
-        </p> -->
+        <!-- Display Shoe Sizes (if applicable) -->
+        <div v-if="product.shoesSize && product.shoesSize > 0" class="mt-4">
+          <p class="font-semibold">Shoe Size:</p>
+          <div class="flex space-x-2 flex-wrap">
+            <span
+              class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
+            >
+              {{ product.shoesSize }}
+            </span>
+          </div>
+        </div>
 
         <!-- Buy Now Button -->
-        <button class="mt-4 bg-blue-500 text-white px-6 py-2 rounded-lg w-full hover:bg-blur-600">
-          Buy Now
+        <button class="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg w-full hover:bg-blue-600 transition-colors">
+          Buy Now 
         </button>
       </div>
     </div>
   </div>
-</template>
 
-<!-- 
- <template>
-  <div>
-    <button @click="$router.push('/index')" class="text-blue-500">
-      ← Back to Products
+  <!-- Product Not Found -->
+  <div v-else class="container mx-auto p-4 text-center">
+    <p class="text-gray-500">Product not found</p>
+    <button 
+      @click="$router.go(-1)" 
+      class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    >
+      Go Back
     </button>
-    <button @click="clearCacheAndReload" class="ml-4 bg-red-500 text-white px-3 py-1 rounded">
-      Refresh Data
-    </button>
-
-    <div v-if="product" class="mt-4 p-4 border rounded-lg shadow-md">
-      <h1 class="text-xl font-bold">{{ product.name }}</h1>
-      <p class="text-lg">Price: ${{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency) }}</p>
-      <p>Description: {{ product.description }}</p>
-      <img :src="product.imageOfColors.imageA" alt="Product" class="w-32 h-32 rounded-lg shadow-lg" />
-    </div>
-    <p v-else class="text-gray-500">Loading product...</p>
-
-  //   Debug section 
-    <div class="mt-8 p-4 bg-gray-100 rounded-lg">
-      <h2 class="font-bold">Debug Info:</h2>
-      <p>Route ID: {{ $route.params.id }}</p>
-      <p>Products count: {{ allProducts ? allProducts.length : 0 }}</p>
-      <div v-if="allProducts && allProducts.length">
-        <div v-for="p in allProducts" :key="p.id" class="mb-2 p-2 border">
-          ID: {{ p.id }} ({{ typeof p.id }}) | Name: {{ p.name }}
-        </div>
-      </div>
-    </div>
   </div>
-</template>  -->
+</template>
