@@ -9,6 +9,7 @@ const route = useRoute();
 const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
+const selectedImage = ref(null); // Add this for tracking selected image
 
 cartStore.loadCart();
 
@@ -49,12 +50,39 @@ onMounted(async () => {
 // Initialize selected image when product loads
 watch(product, (newProduct) => {
   if (newProduct) {
-    // Set initial image
+    // Set initial image as the main product image
+    selectedImage.value = newProduct.image;
+    permanentlySelectedImage.value = newProduct.image; // Set as permanently selected
+    
+    // Set initial image for cart store if needed
     if (newProduct.imageOfColors?.length > 0) {
       cartStore.setSelectedImage(newProduct.imageOfColors[0]);
     }
   }
 });
+
+// Track the permanently selected image (from clicks)
+const permanentlySelectedImage = ref(null);
+
+// Function to handle image selection (click)
+const selectImage = (image) => {
+  selectedImage.value = image;
+  permanentlySelectedImage.value = image; // Remember the clicked image
+};
+
+// Function to handle hover (for hover effect)
+const hoverImage = (image) => {
+  selectedImage.value = image;
+};
+
+// Function to reset to permanently selected image when hover ends
+const resetImage = () => {
+  if (permanentlySelectedImage.value) {
+    selectedImage.value = permanentlySelectedImage.value;
+  } else if (product.value) {
+    selectedImage.value = product.value.image;
+  }
+};
 </script>
 
 <template>
@@ -80,21 +108,44 @@ watch(product, (newProduct) => {
   <!-- Product Details -->
   <div v-else-if="product" class="container mx-auto p-4">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-      <!-- Image Gallery (Top-Left) -->
+      <!-- Image Gallery (Top-Left) - Modified Layout -->
       <div class="self-start">
-        <img 
-          :src="product.image" 
-          alt="Product" 
-          class="w-full rounded-lg shadow-lg"
-        />
-        <div class="flex mt-2 space-x-2">
-           <img
-            v-for="(image, index) in product.possibleImagesOfProduct"
-            :key="index"
-            :src="image"
-            class="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 hover:border-gray-500"
+        <div class="flex gap-4 max-h-96">
+          <!-- Main Product Image -->
+          <div class="flex-1">
+            <img 
+              :src="selectedImage || product.image" 
+              alt="Product" 
+              class="w-full h-96 object-contain rounded-lg shadow-lg bg-gray-50 transition-all duration-300"
+            />
+          </div>
+          
+          <!-- Thumbnail Images on the Right Side -->
+          <div class="flex flex-col gap-2 w-20 overflow-y-auto">
+            <!-- Main product image thumbnail -->
+            <!-- <img
+              :src="product.image"
+              alt="Main product"
+              class="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all duration-200 flex-shrink-0"
+              :class="selectedImage === product.image ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300 hover:border-blue-400'"
+              @click="selectImage(product.image)"
+              @mouseenter="hoverImage(product.image)"
+              @mouseleave="resetImage"
+            /> -->
             
-          /> 
+            <!-- Additional product images thumbnails -->
+            <img
+              v-for="(image, index) in product.possibleImagesOfProduct"
+              :key="index"
+              :src="image"
+              alt="Product variation"
+              class="w-16 h-16 object-contain rounded-lg cursor-pointer border-2 transition-all duration-200 flex-shrink-0"
+              :class="selectedImage === image ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300 hover:border-blue-400'"
+              @mouseenter="hoverImage(image)"
+              @mouseleave="resetImage"
+              @click="selectImage(image)"
+            /> 
+          </div>
         </div>
       </div>
 
