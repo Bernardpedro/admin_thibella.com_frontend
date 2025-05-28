@@ -88,13 +88,13 @@ watch(product, (newProduct) => {
           class="w-full rounded-lg shadow-lg"
         />
         <div class="flex mt-2 space-x-2">
-          <!-- <img
-            v-for="(image, index) in product.imageOfColors"
+           <img
+            v-for="(image, index) in product.possibleImagesOfProduct"
             :key="index"
             :src="image"
             class="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 hover:border-gray-500"
-            :class="{ 'border-blue-500': cartStore.selectedImage === image }"
-          /> -->
+            
+          /> 
         </div>
       </div>
 
