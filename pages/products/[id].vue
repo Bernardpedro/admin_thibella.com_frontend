@@ -10,6 +10,7 @@ const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const selectedImage = ref(null); // Add this for tracking selected image
+const isAddedToCart = ref(false); // Add this to track cart state
 
 cartStore.loadCart();
 
@@ -54,10 +55,6 @@ watch(product, (newProduct) => {
     selectedImage.value = newProduct.image;
     permanentlySelectedImage.value = newProduct.image; // Set as permanently selected
     
-    // Set initial image for cart store if needed
-    if (newProduct.imageOfColors?.length > 0) {
-      cartStore.setSelectedImage(newProduct.imageOfColors[0]);
-    }
   }
 });
 
@@ -81,6 +78,21 @@ const resetImage = () => {
     selectedImage.value = permanentlySelectedImage.value;
   } else if (product.value) {
     selectedImage.value = product.value.image;
+  }
+};
+
+// Function to handle buy now button click
+const handleBuyNow = () => {
+  if (product.value) {
+    // Change button state
+    isAddedToCart.value = true;
+    
+    // Show alert with product name
+    alert(`${product.value.name} is added to cart`);
+    
+    // Add product to cart store
+    cartStore.addToCart(product.value);
+    
   }
 };
 </script>
@@ -122,16 +134,6 @@ const resetImage = () => {
           
           <!-- Thumbnail Images on the Right Side -->
           <div class="flex flex-col gap-2 w-20 overflow-y-auto">
-            <!-- Main product image thumbnail -->
-            <!-- <img
-              :src="product.image"
-              alt="Main product"
-              class="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all duration-200 flex-shrink-0"
-              :class="selectedImage === product.image ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300 hover:border-blue-400'"
-              @click="selectImage(product.image)"
-              @mouseenter="hoverImage(product.image)"
-              @mouseleave="resetImage"
-            /> -->
             
             <!-- Additional product images thumbnails -->
             <img
@@ -216,9 +218,13 @@ const resetImage = () => {
           </div>
         </div>
 
-        <!-- Buy Now Button -->
-        <button class="mt-6 bg-blue-500 text-white px-6 py-3 rounded-lg w-full hover:bg-blue-600 transition-colors">
-          Buy Now 
+        <!-- Buy Now Button with dynamic styling -->
+        <button 
+          @click="handleBuyNow"
+          :class="isAddedToCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'"
+          class="mt-6 text-white px-6 py-3 rounded-lg w-full transition-colors"
+        >
+          {{ isAddedToCart ? 'Added to Cart' : 'Buy Now' }}
         </button>
       </div>
     </div>
