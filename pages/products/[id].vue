@@ -194,14 +194,16 @@ const handleBuyNow = () => {
           </div>
         </div>
 
-        <!-- Display Sizes (Fixed: changed from product.clothingSize?.length to check if it's not empty) -->
-        <div v-if="product.clothingSize && product.clothingSize.trim() !== ''" class="mt-4">
-          <p class="font-semibold">Available Size:</p>
+        <!-- Display Sizes (Fixed: clothingSizes is an array) -->
+        <div v-if="product.clothingSizes && product.clothingSizes.length > 0" class="mt-4">
+          <p class="font-semibold">Available Sizes:</p>
           <div class="flex space-x-2 flex-wrap">
             <span
+              v-for="size in product.clothingSizes"
+              :key="size"
               class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
             >
-              {{ product.clothingSize }}
+              {{ size }}
             </span>
           </div>
         </div>
