@@ -209,13 +209,15 @@ const handleBuyNow = () => {
         </div>
 
         <!-- Display Shoe Sizes (if applicable) -->
-        <div v-if="product.shoesSize && product.shoesSize > 0" class="mt-4">
+        <div v-if="product.shoesSizes && product.shoesSizes.length > 0" class="mt-4">
           <p class="font-semibold">Shoe Size:</p>
           <div class="flex space-x-2 flex-wrap">
             <span
+              v-for="size in product.shoesSizes"
+              :key="size"
               class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
             >
-              {{ product.shoesSize }}
+              {{ size }}
             </span>
           </div>
         </div>
