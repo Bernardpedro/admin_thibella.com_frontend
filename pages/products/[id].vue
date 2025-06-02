@@ -94,6 +94,9 @@ const handleBuyNow = () => {
     cartStore.addToCart(product.value);
     
   }
+
+
+
 };
 </script>
 
@@ -166,13 +169,14 @@ const handleBuyNow = () => {
           {{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency) }}
         </p>
 
-        <!-- Display Colors (Fixed: changed from product.color to product.colors) -->
+        <!-- buttons of Colors -->
         <div v-if="product.colors?.length">
           <p class="font-semibold">Available Colors:</p>
           <div class="flex space-x-2">
             <span
               v-for="color in product.colors"
               :key="color"
+               @click="cartStore.setSelectedColor(color)"
               class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
             >
             <button v-if="color == 'blue'" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors">
@@ -181,46 +185,93 @@ const handleBuyNow = () => {
             <button v-else-if="color == 'red'" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors">
               {{ color }}
             </button>
-            <button v-else-if="color == 'white'" class="bg-white-500 text-black px-2 py-1 rounded hover:bg-black hover:text-white transition-colors">
+            <button v-else-if="color == 'white'" class="bg-white-500 text-black px-2 py-1 rounded hover:bg-gray-200 hover:text-black transition-colors">
               {{ color }}
             </button>
             <button v-else-if="color == 'green'" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors">
               {{ color }}
             </button>
-            <button v-else-if="color == 'yellow'" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition-colors">
+            <button v-else-if="color == 'yellow'" class="bg-yellow-300 text-white px-2 py-1 rounded hover:bg-yellow-500 transition-colors">
               {{ color }}
             </button>
-            </span>
-          </div>
+          </span>
+        </div>
+            <!-- Display selected color -->
+           <div v-if="cartStore.selectedColor" class="mt-2">
+              <p class="font-semibold">
+                Selected color: <span 
+                v-if="cartStore.selectedColor == 'blue'" :class="' text-blue-500 w-24 px-2 py-1 rounded hover:bg-blue-600 '"
+                class="font-medium">{{ cartStore.selectedColor }}</span>
+              
+               <span 
+                v-if="cartStore.selectedColor == 'red'" :class="' text-red-500 w-24 px-2 py-1 rounded hover:bg-red-600 '"
+                class="font-medium">{{ cartStore.selectedColor }}</span>
+             
+                <span 
+                v-if="cartStore.selectedColor == 'yellow'" :class="' text-yellow-300 w-24 px-2 py-1 rounded hover:bg-yellow-600 '"
+                class="font-medium">{{ cartStore.selectedColor }}</span>
+              
+                <span 
+                v-if="cartStore.selectedColor == 'white'" :class="' text-gray-300 w-24 px-2 py-1 rounded hover:bg-gray-500 '"
+                class="font-medium">{{ cartStore.selectedColor }}</span>
+              
+                <span 
+                v-if="cartStore.selectedColor == 'green'" :class="' text-green-500 w-24 px-2 py-1 rounded hover:bg-green-600 '"
+                class="font-medium">{{ cartStore.selectedColor }}</span>
+              </p>
+          
+            </div>
         </div>
 
         <!-- Display Sizes (Fixed: clothingSizes is an array) -->
         <div v-if="product.clothingSizes && product.clothingSizes.length > 0" class="mt-4">
           <p class="font-semibold">Available Sizes:</p>
           <div class="flex space-x-2 flex-wrap">
-            <span
-              v-for="size in product.clothingSizes"
+            <button>
+              <span class="px-3 py-1 m-1 bg-gray-400 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.clothingSizes" 
               :key="size"
-              class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
-            >
-              {{ size }}
-            </span>
+              @click="cartStore.setSelectedClothingSize(size)">
+                {{ size }}
+              </span>
+            </button>
           </div>
         </div>
+
+         <!-- Display selected size of clothing -->
+           <div v-if="cartStore.selectedClothingSize && product.clothingSizes && product.clothingSizes.length > 0" class="mt-2">
+              <p class="font-semibold">
+                Selected size: <span 
+                class="' text-black-500 w-24 px-2 py-1 rounded hover:bg-black-600 font-medium '"
+              >
+              {{ cartStore.selectedClothingSize }}
+            </span>
+              </p>
+           </div>
 
         <!-- Display Shoe Sizes (if applicable) -->
         <div v-if="product.shoesSizes && product.shoesSizes.length > 0" class="mt-4">
           <p class="font-semibold">Shoe Size:</p>
           <div class="flex space-x-2 flex-wrap">
-            <span
-              v-for="size in product.shoesSizes"
+            <button>
+              <span class="px-3 py-1 m-1 bg-gray-400 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.shoesSizes" 
               :key="size"
-              class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
-            >
-              {{ size }}
-            </span>
+              @click="cartStore.setSelectedShoesSize(size)">
+                {{ size }}
+              </span>
+            </button>
           </div>
         </div>
+
+         <!-- Display selected size of shoes -->
+           <div v-if="cartStore.selectedShoesSize  && product.shoesSizes && product.shoesSizes.length > 0" class="mt-2">
+              <p class="font-semibold">
+                Selected size: <span 
+                class="' text-black-500 w-24 px-2 py-1 rounded hover:bg-black-600 font-medium '"
+              >
+              {{ cartStore.selectedShoesSize }}
+            </span>
+              </p>
+           </div>
 
         <!-- Buy Now Button with dynamic styling -->
         <button 

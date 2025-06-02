@@ -41,7 +41,7 @@ const products = ref<Product[]>([]);
 
 onMounted(async () => {
   try {
-    const response = await apiFetch('products2', { 
+    const response = await apiFetch('api/products', { 
       method: 'GET',
       headers: { 'Content-Type': 'application/json', 'Accept-Language': 'en' }
     });
@@ -57,6 +57,9 @@ export const useCartStore = defineStore('cart', {
     selectedCurrency: ref("RWF"),
     selectedImage: ref(""),
     selectedShipping: ref("Standard"),
+    selectedColor: ref(""), 
+    selectedClothingSize: ref(""),
+    selectedShoesSize: ref("")
   }),
   getters: {
     cartTotalQuantity: (state) => computed(() =>{
@@ -148,22 +151,65 @@ getEstimatedDeliveryDate() {
       
       this.updateLocalStorage();
     },
-// loading cart from local storage
 
-    loadCart(){
-      if(import.meta.client){
-    const  storedCart = localStorage.getItem('cart');
-    const storedCurrency = localStorage.getItem('selectedCurrency');
-    const storedImage = localStorage.getItem('selectedImage');
-    const storedShipping = localStorage.getItem('selectedShipping');
+    // Set selected color 
 
-    this.cart = storedCart ? JSON.parse(storedCart) : [];
-    this.selectedCurrency = storedCurrency ? storedCurrency : "RWF";  
-    this.selectedImage = storedImage ? storedImage : "";
-    this.selectedShipping = storedShipping ? storedShipping :  "Standard";
+  setSelectedColor(color: string) {
+    this.selectedColor = color;
 
-    this.updateLocalStorage();
+    if (import.meta.client) {
+      localStorage.setItem('selectedColor', color);
+    }
     
+    this.updateLocalStorage();
+  },
+    // Set selected color 
+
+  setSelectedClothingSize(size: string) {
+    this.selectedClothingSize = size;
+
+    if (import.meta.client) {
+      localStorage.setItem('selectedSize', size);
+    }
+    
+    this.updateLocalStorage();
+  },
+
+  // set clothing size
+
+  setSelectedShoesSize(size: string) {
+    this.selectedShoesSize = size;
+
+    if (import.meta.client) {
+      localStorage.setItem('selectedSize', size);
+    }
+    
+    this.updateLocalStorage();
+  },
+
+  // loading cart from local storage
+
+  loadCart(){
+    if(import.meta.client){
+  const  storedCart = localStorage.getItem('cart');
+  const storedCurrency = localStorage.getItem('selectedCurrency');
+  const storedImage = localStorage.getItem('selectedImage');
+  const storedShipping = localStorage.getItem('selectedShipping');
+  const storedColor = localStorage.getItem('selectedColor');
+  const storedClothingSize = localStorage.getItem('selectedClothingSize');
+  const storedShoesSize = localStorage.getItem('selectedShoesSize');
+
+
+  this.cart = storedCart ? JSON.parse(storedCart) : [];
+  this.selectedCurrency = storedCurrency ? storedCurrency : "RWF";  
+  this.selectedImage = storedImage ? storedImage : "";
+  this.selectedShipping = storedShipping ? storedShipping :  "Standard";
+  this.selectedColor = storedColor ? storedColor : ""; 
+  this.selectedClothingSize = storedClothingSize ? storedClothingSize : "";
+  this.selectedShoesSize = storedShoesSize ? storedShoesSize : "";
+
+  this.updateLocalStorage();
+
     }
   },
 
@@ -175,6 +221,9 @@ getEstimatedDeliveryDate() {
       localStorage.setItem('selectedCurrency', this.selectedCurrency);
       localStorage.setItem('selectedImage', this.selectedImage);
       localStorage.setItem('selectedShipping', this.selectedShipping);
+      localStorage.setItem('selectedColor', this.selectedColor);
+      localStorage.setItem('selectedClothingSize', this.selectedClothingSize);
+      localStorage.setItem('selectedShoesSize', this.selectedShoesSize);
     }
   },
     addToCart(product: Product) {

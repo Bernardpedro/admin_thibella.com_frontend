@@ -1,10 +1,10 @@
 <template>
   <div :class="{ dark: isDarkMode }" class="bg-white dark:bg-gray-900">
     <div class="bg-white dark:bg-gray-900">
-      <FlowbiteCarousel />
+      <!-- <FlowbiteCarousel /> -->
       <ProductsList/>
 
-      <FiltersC/>
+      <!-- <FiltersC/> -->
     </div>
     <AllCategories/>
   </div>
@@ -14,7 +14,7 @@
 import FlowbiteCarousel from '~/components/FlowbiteCarousel.vue';
 import ProductsList from '~/components/ProductsList.vue';
 import AllCategories from '~/components/product/AllCategoriesC.vue';
-import FiltersC from '~/components/Filter/FiltersC.vue';
+
 
 definePageMeta({
   layout:'default'
