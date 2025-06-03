@@ -72,14 +72,26 @@ const selectedColor = ref("");
                 <div class="flex-1 ml-4">
                   <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ product.name }}</h3>
                   <div class="flex gap-2 mt-2">
-                    <span class="p-0 text-sm bg-gray-200 rounded">
-                      <select v-model="selectedColor" class="border p-1 rounded">
-                        <option disabled value="">Choose Color</option>
-                        <option value="Red">Red</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Green">Green</option>
-                      </select>
-                    </span>
+                    <!-- <span class="p-0 text-sm rounded"> -->
+
+                      <!-- Display selected color for THIS specific product -->
+                      <span v-if="product.selectedColor" class="p-2 text-lg text-gray-900 dark:text-white rounded">
+                        <span class="font-semibold">Color: </span>
+                        <span 
+                          :class="{
+                            'text-blue-500': product.selectedColor === 'blue',
+                            'text-red-500': product.selectedColor === 'red', 
+                            'text-yellow-500': product.selectedColor === 'yellow',
+                            'text-gray-500': product.selectedColor === 'white',
+                            'text-green-500': product.selectedColor === 'green'
+                          }"
+                          class="font-medium px-2 py-1 rounded"
+                        >
+                          {{ product.selectedColor }}
+                        </span>
+                      </span>
+
+                    <!-- </span> -->
                     <span class="p-0 text-sm bg-gray-200 rounded">
                       <select v-model="cartStore.selectedCurrency"  class="border p-1 w-[120px] rounded">
                         <option disabled value="">currency</option>
@@ -98,7 +110,23 @@ const selectedColor = ref("");
                     </span>
                   </div>
                   <div class="mt-3 flex gap-4">
-                    <button class="text-sm text-blue-500 hover:underline">Move to Favorites</button>
+                    <span class="text-sm text-blue-500 hover:underline">
+                       <!-- Display selected size for THIS specific product -->
+                      <span v-if="product.selectedClothingSize && !product.selectedShoesSize" class="p-2 text-lg text-gray-900 dark:text-white rounded">
+                        <span class="font-semibold">Size: </span>
+                        
+                          {{ product.selectedClothingSize }}
+                        </span>
+                      </span>
+
+                     <!-- Display selected size for THIS specific product -->
+                      <span v-if="product.selectedShoesSize && !product.selectedClothingSize" class="p-2 text-lg text-gray-900 dark:text-white rounded">
+                        <span class="font-semibold">Size: </span>
+                        
+                          {{ product.selectedShoesSize }}
+                        </span>
+
+
                     <button class="text-sm text-red-500 hover:underline" @click="cartStore.removeFromCart(product.id)">Remove</button>
                   </div>
                 </div>

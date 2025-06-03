@@ -12,6 +12,27 @@ const error = ref(null);
 const selectedImage = ref(null); // Add this for tracking selected image
 const isAddedToCart = ref(false); // Add this to track cart state
 
+const selectedColor = ref('');
+const selectedClothingSize = ref('');
+const selectedShoesSize = ref('');
+
+// use local state to select color 
+
+const selectColor = (color) => {
+  selectedColor.value = color;
+};
+// use local state to select clothing size
+
+const selectClothingSize = (size) => {
+  selectedClothingSize.value = size;
+};
+
+// use local state to select shoessize
+
+const selectShoesSize = (size) => {
+  selectedShoesSize.value = size;
+};
+
 cartStore.loadCart();
 
 onMounted(async () => {
@@ -87,11 +108,25 @@ const handleBuyNow = () => {
     // Change button state
     isAddedToCart.value = true;
     
-    // Show alert with product name
-    alert(`${product.value.name} is added to cart`);
+    // Show alert with product name and selected options
+   
+     const optionsText = [];
+    if (selectedColor.value) optionsText.push(`Color: ${selectedColor.value}`);
+    if (selectedClothingSize.value) optionsText.push(`Size: ${selectedClothingSize.value}`);
+    if (selectedShoesSize.value) optionsText.push(`Size: ${selectedShoesSize.value}`);
+
+    alert(`${product.value.name}${optionsText.length ? ` (${optionsText.join(', ')})` : ''} is added to cart`);
+
     
+
+     // Add product to cart store with selected options
+    cartStore.addToCart(product.value, {
+      color: selectedColor.value,
+      clothingSize: selectedClothingSize.value,
+      shoesSize : selectShoesSize.value
+    });
     // Add product to cart store
-    cartStore.addToCart(product.value);
+   // cartStore.addToCart(product.value);
     
   }
 
@@ -169,14 +204,14 @@ const handleBuyNow = () => {
           {{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency) }}
         </p>
 
-        <!-- buttons of Colors -->
+        <!-- loop in product.color and display buttons of Colors -->
         <div v-if="product.colors?.length">
           <p class="font-semibold">Available Colors:</p>
           <div class="flex space-x-2">
             <span
               v-for="color in product.colors"
               :key="color"
-               @click="cartStore.setSelectedColor(color)"
+               @click="selectColor(color)"
               class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
             >
             <button v-if="color == 'blue'" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors">
@@ -197,40 +232,40 @@ const handleBuyNow = () => {
           </span>
         </div>
             <!-- Display selected color -->
-           <div v-if="cartStore.selectedColor" class="mt-2">
+           <div v-if="selectedColor" class="mt-2">
               <p class="font-semibold">
                 Selected color: <span 
-                v-if="cartStore.selectedColor == 'blue'" :class="' text-blue-500 w-24 px-2 py-1 rounded hover:bg-blue-600 '"
-                class="font-medium">{{ cartStore.selectedColor }}</span>
-              
+                v-if="selectedColor == 'blue'" :class="' text-blue-500 w-24 px-2 py-1 rounded hover:bg-blue-600 '"
+                class="font-medium">{{ selectedColor }}</span>
+
                <span 
-                v-if="cartStore.selectedColor == 'red'" :class="' text-red-500 w-24 px-2 py-1 rounded hover:bg-red-600 '"
-                class="font-medium">{{ cartStore.selectedColor }}</span>
-             
+                v-if="selectedColor == 'red'" :class="' text-red-500 w-24 px-2 py-1 rounded hover:bg-red-600 '"
+                class="font-medium">{{ selectedColor }}</span>
+
                 <span 
-                v-if="cartStore.selectedColor == 'yellow'" :class="' text-yellow-300 w-24 px-2 py-1 rounded hover:bg-yellow-600 '"
-                class="font-medium">{{ cartStore.selectedColor }}</span>
-              
+                v-if="selectedColor == 'yellow'" :class="' text-yellow-300 w-24 px-2 py-1 rounded hover:bg-yellow-600 '"
+                class="font-medium">{{ selectedColor }}</span>
+
                 <span 
-                v-if="cartStore.selectedColor == 'white'" :class="' text-gray-300 w-24 px-2 py-1 rounded hover:bg-gray-500 '"
-                class="font-medium">{{ cartStore.selectedColor }}</span>
-              
+                v-if="selectedColor == 'white'" :class="' text-gray-300 w-24 px-2 py-1 rounded hover:bg-gray-500 '"
+                class="font-medium">{{ selectedColor }}</span>
+
                 <span 
-                v-if="cartStore.selectedColor == 'green'" :class="' text-green-500 w-24 px-2 py-1 rounded hover:bg-green-600 '"
-                class="font-medium">{{ cartStore.selectedColor }}</span>
+                v-if="selectedColor == 'green'" :class="' text-green-500 w-24 px-2 py-1 rounded hover:bg-green-600 '"
+                class="font-medium">{{ selectedColor }}</span>
               </p>
           
             </div>
         </div>
 
-        <!-- Display Sizes (Fixed: clothingSizes is an array) -->
+        <!-- loop in product.clothingSizes and Display Sizes of clothing-->
         <div v-if="product.clothingSizes && product.clothingSizes.length > 0" class="mt-4">
           <p class="font-semibold">Available Sizes:</p>
           <div class="flex space-x-2 flex-wrap">
             <button>
               <span class="px-3 py-1 m-1 bg-gray-400 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.clothingSizes" 
               :key="size"
-              @click="cartStore.setSelectedClothingSize(size)">
+              @click="selectClothingSize(size)">
                 {{ size }}
               </span>
             </button>
@@ -238,24 +273,24 @@ const handleBuyNow = () => {
         </div>
 
          <!-- Display selected size of clothing -->
-           <div v-if="cartStore.selectedClothingSize && product.clothingSizes && product.clothingSizes.length > 0" class="mt-2">
+           <div v-if="selectedSize && product.clothingSizes && product.clothingSizes.length > 0" class="mt-2">
               <p class="font-semibold">
                 Selected size: <span 
                 class="' text-black-500 w-24 px-2 py-1 rounded hover:bg-black-600 font-medium '"
               >
-              {{ cartStore.selectedClothingSize }}
+              {{ selectedClothingSize }}
             </span>
               </p>
            </div>
 
-        <!-- Display Shoe Sizes (if applicable) -->
+        <!-- loop in product.shoesSizes and display Shoe Sizes (if applicable) -->
         <div v-if="product.shoesSizes && product.shoesSizes.length > 0" class="mt-4">
           <p class="font-semibold">Shoe Size:</p>
           <div class="flex space-x-2 flex-wrap">
             <button>
               <span class="px-3 py-1 m-1 bg-gray-400 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.shoesSizes" 
               :key="size"
-              @click="cartStore.setSelectedShoesSize(size)">
+              @click="selectShoesSize(size)">
                 {{ size }}
               </span>
             </button>
@@ -268,7 +303,7 @@ const handleBuyNow = () => {
                 Selected size: <span 
                 class="' text-black-500 w-24 px-2 py-1 rounded hover:bg-black-600 font-medium '"
               >
-              {{ cartStore.selectedShoesSize }}
+              {{ selectedShoesSize }}
             </span>
               </p>
            </div>
