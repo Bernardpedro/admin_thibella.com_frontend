@@ -123,7 +123,7 @@ const handleBuyNow = () => {
     cartStore.addToCart(product.value, {
       color: selectedColor.value,
       clothingSize: selectedClothingSize.value,
-      shoesSize : selectShoesSize.value
+      shoesSize : selectedShoesSize.value
     });
     // Add product to cart store
    // cartStore.addToCart(product.value);
