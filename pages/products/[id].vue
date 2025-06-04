@@ -6,6 +6,7 @@ import { useCartStore } from '~/stores/cart';
 const cartStore = useCartStore();
 
 const route = useRoute();
+const router = useRouter();
 const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
@@ -125,14 +126,24 @@ const handleBuyNow = () => {
       clothingSize: selectedClothingSize.value,
       shoesSize : selectedShoesSize.value
     });
-    // Add product to cart store
-   // cartStore.addToCart(product.value);
     
   }
 
-
+console.log("Product added to cart:", product.value);
+  console.log("Selected options:", {
+    color: selectedColor.value,
+    clothingSize: selectedClothingSize.value,
+    shoesSize: selectedShoesSize.value
+  });
 
 };
+
+ // function allowing to move to shopping cart
+
+  const moveToCart = () => {
+    // Navigate to the shopping cart page
+    router.push('/ShoppingCartP');
+  };
 </script>
 
 <template>
@@ -273,7 +284,7 @@ const handleBuyNow = () => {
         </div>
 
          <!-- Display selected size of clothing -->
-           <div v-if="selectedSize && product.clothingSizes && product.clothingSizes.length > 0" class="mt-2">
+           <div v-if="selectedClothingSize" class="mt-2">
               <p class="font-semibold">
                 Selected size: <span 
                 class="' text-black-500 w-24 px-2 py-1 rounded hover:bg-black-600 font-medium '"
@@ -298,7 +309,7 @@ const handleBuyNow = () => {
         </div>
 
          <!-- Display selected size of shoes -->
-           <div v-if="cartStore.selectedShoesSize  && product.shoesSizes && product.shoesSizes.length > 0" class="mt-2">
+           <div v-if="selectedShoesSize" class="mt-2">
               <p class="font-semibold">
                 Selected size: <span 
                 class="' text-black-500 w-24 px-2 py-1 rounded hover:bg-black-600 font-medium '"
@@ -309,13 +320,23 @@ const handleBuyNow = () => {
            </div>
 
         <!-- Buy Now Button with dynamic styling -->
-        <button 
-          @click="handleBuyNow"
-          :class="isAddedToCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'"
-          class="mt-6 text-white px-6 py-3 rounded-lg w-full transition-colors"
-        >
-          {{ isAddedToCart ? 'Added to Cart' : 'Buy Now' }}
+         <span class="flex flex-row gap-4">
+           <button 
+           @click="handleBuyNow"
+           :class="isAddedToCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'"
+           class="mt-6 text-white px-6 py-3 rounded-lg w-48 transition-colors"
+           >
+           {{ isAddedToCart ? 'Added to Cart' : 'Buy Now' }}
+          </button>
+          <!--  Move to shopping cart Button with dynamic styling :disabled="!isAddedToCart" -->
+          <button 
+          @click="moveToCart"
+          
+          class=" bg-blue-500 hover:bg-blue-600 mt-6 text-white px-6 py-3 rounded-lg w-48 transition-colors"
+          >
+          Shopping Cart
         </button>
+      </span>
       </div>
     </div>
   </div>
