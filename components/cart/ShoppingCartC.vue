@@ -34,7 +34,6 @@ watch(() => cartStore.selectedShipping, (newSelectedShipping) => {
   console.log("Shipping changed to:", newSelectedShipping);
   cartStore.setShipping(newSelectedShipping); // save the change of new shipping
 });
-console.log("product. shoes size", cartStore.cart[0]?.selectedShoesSize);
 
 cartStore.loadCart();
 
@@ -43,11 +42,6 @@ const increment = (product: Product) => product.quantity++;
 const decrement = (product: Product) => {
   if (product.quantity > 1) product.quantity--;
 };
-
-//  user selections
-const selectedColor = ref("");
-
-
 </script>
 
 <template>
@@ -128,7 +122,10 @@ const selectedColor = ref("");
                         </span>
 
 
-                    <button class="text-sm text-red-500 hover:underline" @click="cartStore.removeFromCart(product.id)">Remove</button>
+                    <button class="text-sm text-red-500 hover:underline"
+                     @click="cartStore.removeFromCart(product.cartItemId)">
+                      Remove
+                    </button>
                   </div>
                 </div>
 

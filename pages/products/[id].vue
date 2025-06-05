@@ -332,8 +332,11 @@ console.log("Product added to cart:", product.value);
           <button 
           @click="moveToCart"
           
-          class=" bg-blue-500 hover:bg-blue-600 mt-6 text-white px-6 py-3 rounded-lg w-48 transition-colors"
+          class=" bg-blue-500 hover:bg-blue-600 mt-6 text-white px-6 py-3 rounded-lg w-48 flex justify-center gap-2 transition-colors"
           >
+          <img src="assets/img/Accessories/images/icons/cart-icon.png" alt="cart-icon"
+                        class="size-6 shrink-0"
+                        aria-hidden="true">
           Shopping Cart
         </button>
       </span>
