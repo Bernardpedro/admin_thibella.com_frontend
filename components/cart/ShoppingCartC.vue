@@ -34,7 +34,7 @@ watch(() => cartStore.selectedShipping, (newSelectedShipping) => {
   console.log("Shipping changed to:", newSelectedShipping);
   cartStore.setShipping(newSelectedShipping); // save the change of new shipping
 });
-console.log("product. shoes size", cartStore.cart[0].selectedShoesSize);
+console.log("product. shoes size", cartStore.cart[0]?.selectedShoesSize);
 
 cartStore.loadCart();
 
@@ -113,7 +113,7 @@ const selectedColor = ref("");
                   <div class="mt-3 flex gap-4">
                     <span class="text-sm text-blue-500 hover:underline">
                        <!-- Display selected size for THIS specific product -->
-                      <span v-if="product.selectedClothingSize && !product.selectedShoesSize" class="p-2 text-lg text-gray-900 dark:text-white rounded">
+                      <span v-if="product.selectedClothingSize" class="p-2 text-lg text-gray-900 dark:text-white rounded">
                         <span class="font-semibold">Size: </span>
                         
                           {{ product.selectedClothingSize }}
