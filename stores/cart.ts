@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { apiFetch } from "~/utils/api";
-import { ref, onMounted } from "vue"; 
+import { ref, onMounted, computed } from "vue"; 
 // import { formatCurrency } from "@/stores/currencyFormatter"; // Removed as it is not used
 
 export type Product = {
@@ -72,14 +72,34 @@ export const useCartStore = defineStore('cart', {
     
    calculateTotalPrice: (state) => computed(() => {
     return state.cart.reduce((total, product) => total + product.priceCents * product.quantity, 0);
-   })
-    
+   }),
+
+   // Getter to access cart items (for easier access)
+   cartItems: (state) => state.cart
   },
   actions: {
     convertPrice(priceCents: number) {
       const exchangeRates: Record<string, number> = { USD: 0.00071, EUR: 0.00068, RWF: 1 };
       const convertedPrice = parseFloat((priceCents * exchangeRates[this.selectedCurrency]).toFixed(2));
       return convertedPrice;
+    },
+
+    // Method to generate consistent cartItemId
+    generateCartItemId(productId: string, options: { color?: string; clothingSize?: string; shoesSize?: string } = {}) {
+      return `${productId}-${options.color || 'default'}-${options.clothingSize || 'default'}-${options.shoesSize || 'default'}`;
+    },
+
+    // Method to check if a product with specific options is already in cart
+    isProductInCart(productId: string, options: { color?: string; clothingSize?: string; shoesSize?: string } = {}) {
+      if (!this.cart || this.cart.length === 0) {
+        return false;
+      }
+
+      // Generate the same cartItemId that would be created when adding to cart
+      const cartItemId = this.generateCartItemId(productId, options);
+      
+      // Check if an item with this cartItemId exists in the cart
+      return this.cart.some(item => item.cartItemId === cartItemId);
     },
 
     // shipping and handling cost
@@ -167,7 +187,7 @@ getEstimatedDeliveryDate() {
     
     this.updateLocalStorage();
   },
-    // Set selected color 
+    // Set selected clothing size 
 
   setSelectedClothingSize(size: string) {
     this.selectedClothingSize = size;
@@ -179,7 +199,7 @@ getEstimatedDeliveryDate() {
     this.updateLocalStorage();
   },
 
-  // set clothing size
+  // set shoes size
 
   setSelectedShoesSize(size: string) {
     this.selectedShoesSize = size;
@@ -230,24 +250,19 @@ getEstimatedDeliveryDate() {
       localStorage.setItem('selectedShoesSize', this.selectedShoesSize);
     }
   },
-  /*
-   selectedClothingSize?: string;
-  selectedShoesSize?: String;*/ 
+
     addToCart(
       product: Product,
       selectedOptions: { color?: string; clothingSize?: string; shoesSize?: string } = {}
     ) {
       if (!product) return;
 
-      // Create a unique key that includes selected options
-      const productKey = `${product.id}-${selectedOptions.color || 'default'}-${selectedOptions.clothingSize || 'default'}-${selectedOptions.shoesSize || 'default'}`;
+      // Create a unique cartItemId using the helper method
+      const cartItemId = this.generateCartItemId(product.id, selectedOptions);
 
-      const existingProduct = this.cart.find((item) => 
-        item.id === product.id  && 
-        item.selectedColor === selectedOptions.color &&
-        item.selectedClothingSize === selectedOptions.clothingSize &&
-        item.selectedShoesSize === selectedOptions.shoesSize 
-    );
+      // Find existing product with same options
+      const existingProduct = this.cart.find((item) => item.cartItemId === cartItemId);
+      
       if (existingProduct) {
         existingProduct.quantity++;
       } else {
@@ -257,17 +272,17 @@ getEstimatedDeliveryDate() {
           selectedColor: selectedOptions.color || '',
           selectedClothingSize: selectedOptions.clothingSize || '',
           selectedShoesSize: selectedOptions.shoesSize || '',
-          cartItemId: productKey // Unique identifier for this cart item
-
- 
+          cartItemId: cartItemId // Unique identifier for this cart item
         });
       }
+      
       if(import.meta.client){
-    localStorage.setItem('cart', JSON.stringify(this.cart));
-    this.updateLocalStorage();
-    }
-  },
-  // remove from cart base on productId
+        localStorage.setItem('cart', JSON.stringify(this.cart));
+        this.updateLocalStorage();
+      }
+    },
+
+  // remove from cart base on cartItemId
     removeFromCart(cartItemId: string) {
       this.cart = this.cart.filter((item) => item.cartItemId !== cartItemId);
       if(import.meta.client){
@@ -275,6 +290,28 @@ getEstimatedDeliveryDate() {
       this.updateLocalStorage();
     }
   },
+
+  // Method to get specific cart item by cartItemId
+  getCartItem(cartItemId: string) {
+    return this.cart.find(item => item.cartItemId === cartItemId);
+  },
+
+  // Method to update cart item quantity
+  updateCartItemQuantity(cartItemId: string, newQuantity: number) {
+    const item = this.cart.find(item => item.cartItemId === cartItemId);
+    if (item) {
+      if (newQuantity <= 0) {
+        this.removeFromCart(cartItemId);
+      } else {
+        item.quantity = newQuantity;
+        if(import.meta.client){
+          localStorage.setItem('cart', JSON.stringify(this.cart));
+          this.updateLocalStorage();
+        }
+      }
+    }
+  },
+
   //clear cart
   clearCart() {
     this.cart = [];

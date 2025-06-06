@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { apiFetch } from "~/utils/api";
 import { useCartStore } from '~/stores/cart';
 
@@ -10,26 +10,46 @@ const router = useRouter();
 const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
-const selectedImage = ref(null); // Add this for tracking selected image
-const isAddedToCart = ref(false); // Add this to track cart state
+const selectedImage = ref(null);
 
 const selectedColor = ref('');
 const selectedClothingSize = ref('');
 const selectedShoesSize = ref('');
 
-// use local state to select color 
+// Track the permanently selected image (from clicks)
+const permanentlySelectedImage = ref(null);
 
+// Computed property to check if current product with selected options is already in cart
+const isProductInCart = computed(() => {
+  if (!product.value) return false;
+  
+  // Generate the same cartItemId that would be used when adding to cart
+  const currentOptions = {
+    color: selectedColor.value,
+    clothingSize: selectedClothingSize.value,
+    shoesSize: selectedShoesSize.value
+  };
+  
+  // Check if item exists in cart using the cart store method
+  return cartStore.isProductInCart(product.value.id, currentOptions);
+});
+
+// Computed property for button text
+const buttonText = computed(() => {
+  return isProductInCart.value ? 'Added to Cart' : 'Buy Now';
+});
+
+// use local state to select color 
 const selectColor = (color) => {
   selectedColor.value = color;
 };
-// use local state to select clothing size
 
+// use local state to select clothing size
 const selectClothingSize = (size) => {
   selectedClothingSize.value = size;
 };
 
-// use local state to select shoessize
-
+// use local state to select shoes size
 const selectShoesSize = (size) => {
   selectedShoesSize.value = size;
 };
@@ -57,7 +77,7 @@ onMounted(async () => {
 
     // Your Spring controller returns the ProductDTO directly, not wrapped in a data property
     product.value = response;
-    console.log("product from data loader",product.value);
+    console.log("product from data loader", product.value);
   } catch (err) {
     console.error("Error fetching product:", err);
     if (err.status === 404) {
@@ -76,12 +96,8 @@ watch(product, (newProduct) => {
     // Set initial image as the main product image
     selectedImage.value = newProduct.image;
     permanentlySelectedImage.value = newProduct.image; // Set as permanently selected
-    
   }
 });
-
-// Track the permanently selected image (from clicks)
-const permanentlySelectedImage = ref(null);
 
 // Function to handle image selection (click)
 const selectImage = (image) => {
@@ -105,45 +121,51 @@ const resetImage = () => {
 
 // Function to handle buy now button click
 const handleBuyNow = () => {
-  if (product.value) {
-    // Change button state
-    isAddedToCart.value = true;
+  if (!product.value) return;
+
+  const currentOptions = {
+    color: selectedColor.value,
+    clothingSize: selectedClothingSize.value,
+    shoesSize: selectedShoesSize.value
+  };
+
+  // Check if product with these exact options is already in cart
+  if (cartStore.isProductInCart(product.value.id, currentOptions)) {
+    // Show confirmation dialog for adding duplicate item
+    const userConfirmed = confirm(`Do you want to add ${product.value.name} again into your cart?`);
     
-    // Show alert with product name and selected options
-   
-     const optionsText = [];
+    if (userConfirmed) {
+      // Add product to cart again
+      cartStore.addToCart(product.value, currentOptions);
+      
+      const optionsText = [];
+      if (selectedColor.value) optionsText.push(`Color: ${selectedColor.value}`);
+      if (selectedClothingSize.value) optionsText.push(`Size: ${selectedClothingSize.value}`);
+      if (selectedShoesSize.value) optionsText.push(`Size: ${selectedShoesSize.value}`);
+
+      alert(`${product.value.name}${optionsText.length ? ` (${optionsText.join(', ')})` : ''} is added to cart again`);
+    }
+  } else {
+    // Add product to cart for the first time
+    cartStore.addToCart(product.value, currentOptions);
+    
+    const optionsText = [];
     if (selectedColor.value) optionsText.push(`Color: ${selectedColor.value}`);
     if (selectedClothingSize.value) optionsText.push(`Size: ${selectedClothingSize.value}`);
     if (selectedShoesSize.value) optionsText.push(`Size: ${selectedShoesSize.value}`);
 
     alert(`${product.value.name}${optionsText.length ? ` (${optionsText.join(', ')})` : ''} is added to cart`);
-
-    
-
-     // Add product to cart store with selected options
-    cartStore.addToCart(product.value, {
-      color: selectedColor.value,
-      clothingSize: selectedClothingSize.value,
-      shoesSize : selectedShoesSize.value
-    });
-    
   }
 
-console.log("Product added to cart:", product.value);
-  console.log("Selected options:", {
-    color: selectedColor.value,
-    clothingSize: selectedClothingSize.value,
-    shoesSize: selectedShoesSize.value
-  });
-
+  console.log("Product added to cart:", product.value);
+  console.log("Selected options:", currentOptions);
 };
 
- // function allowing to move to shopping cart
-
-  const moveToCart = () => {
-    // Navigate to the shopping cart page
-    router.push('/ShoppingCartP');
-  };
+// Function allowing to move to shopping cart
+const moveToCart = () => {
+  // Navigate to the shopping cart page
+  router.push('/ShoppingCartP');
+};
 </script>
 
 <template>
@@ -323,15 +345,14 @@ console.log("Product added to cart:", product.value);
          <span class="flex flex-row gap-4">
            <button 
            @click="handleBuyNow"
-           :class="isAddedToCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'"
+           :class="isProductInCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'"
            class="mt-6 text-white px-6 py-3 rounded-lg w-48 transition-colors"
            >
-           {{ isAddedToCart ? 'Added to Cart' : 'Buy Now' }}
+           {{ buttonText }}
           </button>
-          <!--  Move to shopping cart Button with dynamic styling :disabled="!isAddedToCart" -->
+          <!--  Move to shopping cart Button -->
           <button 
           @click="moveToCart"
-          
           class=" bg-blue-500 hover:bg-blue-600 mt-6 text-white px-6 py-3 rounded-lg w-48 flex justify-center gap-2 transition-colors"
           >
           <img src="assets/img/Accessories/images/icons/cart-icon.png" alt="cart-icon"
