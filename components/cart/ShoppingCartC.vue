@@ -99,8 +99,8 @@ const decrement = (product: Product) => {
                     <select v-model="cartStore.selectedShipping" class="border p-1 w-[200px] rounded">
                       <option disabled value="">Choose Shipping</option>
                       <option value="Standard">Standard (5-7 days)</option>
-                      <option value="Express">Express (2-3 days)</option>
-                      <option value="Overnight">Overnight (1 day)</option>
+                      <!-- <option value="Express">Express (2-3 days)</option>
+                      <option value="Overnight">Overnight (1 day)</option> -->
                     </select>
                     </span>
                   </div>

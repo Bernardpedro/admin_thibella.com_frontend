@@ -107,10 +107,6 @@ export const useCartStore = defineStore('cart', {
         switch (this.selectedShipping) {
           case "Standard":
             return "Free";
-          case "Express":
-            return "$4"
-          case "Overnight":
-            return "$12"
           default:
             return "Free";
         }

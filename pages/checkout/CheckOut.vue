@@ -3,15 +3,31 @@
     <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-6 rounded-lg shadow-md">
       <!-- Order Summary -->
       <div>
-        <h2 class="text-xl font-semibold mb-4">Your Order</h2>
+        <h2 class="text-xl font-semibold mb-4">Review Your Order :</h2>
         <div class="border p-4 rounded-lg">
-          <div v-for="product in cartStore.cart" :key="product.id" class="flex gap-4">
-            <div class="w-20 h-20 bg-gray-300 mb-1">
-              <img :src="product.image" :alt="product.name" class="w-20 h-20">
+          <div v-for="product in cartStore.cart" :key="product.id" class="flex gap-4 mb-6 pb-4 border-b border-gray-200 last:border-b-0 last:mb-0 last:pb-0">
+            <div class="w-24 h-24 bg-gray-300 mb-1">
+              <img :src="product.image" :alt="product.name" class="w-24 h-24 object-cover rounded" />
             </div>
-            <div>
+            <div class="flex-1 space-y-2">
               <p class="text-gray-500 text-sm">{{ product.name }}</p>
-              <h3 class="font-semibold">{{formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency)}}</h3>
+              <p><span class="font-semibold text-sm">Quantity:</span> {{ product.quantity }}</p>
+              <p class="text-gray-500 text-sm">Color: 
+                <span :class="{
+                  'text-blue-500': product.selectedColor === 'blue',
+                  'text-red-500': product.selectedColor === 'red', 
+                  'text-yellow-500': product.selectedColor === 'yellow',
+                  'text-gray-500': product.selectedColor === 'white',
+                  'text-green-500': product.selectedColor === 'green'
+                }">
+                  {{ product.selectedColor }}
+                </span>
+              </p>
+              <p><span 
+                v-if="product.selectedClothingSize"
+                class="font-semibold text-sm">Size:</span> {{ product.selectedClothingSize }}</p>
+                <span v-if="product.selectedShoesSize" class="font-semibold text-sm">Size:</span> {{ product.selectedShoesSize }}
+              <h3 class="font-semibold text-sm">{{formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency)}}</h3>
               
             </div>
           </div>
@@ -33,10 +49,10 @@
                 
               </span>
             </div>
-            <div class="flex justify-between">
+            <!-- <div class="flex justify-between">
               <span>Discount:</span>
               <span> $0.00 </span>
-            </div>
+            </div> -->
             <div class="flex justify-between">
               <span>Shipping:</span>
               <span>{{ cartStore.getShippingCost() }}</span>
