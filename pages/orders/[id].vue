@@ -12,6 +12,13 @@
       <!-- <span v-for="order in userOrders" :key="order.id" class="text-gray-400">ID {{ order.id }}</span> -->
       <span class="text-gray-400">ID {{ order1.id }}</span>
     </div>
+    <!-- status -->
+     <span class="text-gray-500 mb-4">
+      Status:
+      <span v-if="order1.status === 'Confirmed'" class="text-green-500 font-medium">Confirmed</span>
+      <span v-else-if="order1.status === 'Pending Verification'" class="text-yellow-500 font-medium">Processing</span>
+
+     </span>
 
     <!-- Order Header -->
     <div class="flex justify-between items-center mb-6">

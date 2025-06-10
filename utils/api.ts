@@ -2,7 +2,6 @@ export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  // const baseUrl = useRuntimeConfig().public.API_URL;
   const baseUrl = useRuntimeConfig().public.baseUrl;
     
   // Remove leading slash from endpoint if it exists
