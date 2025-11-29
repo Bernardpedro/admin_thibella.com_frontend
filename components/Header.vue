@@ -1,269 +1,280 @@
 <template>
- 
-  <div :class="{ dark: isDarkMode }" class="bg-white dark:bg-gray-900">
-    <div>
-      <!-- Moved DiscountPopUp here so it can overlay the navbar -->
-      <!-- <DiscountPopUp/> -->
-      
-      <div class="bg-white dark:bg-gray-900">
-        <!-- Mobile menu -->
-        <TransitionRoot as="template" :show="open">
-          <!-- (Mobile menu content here) -->
-        </TransitionRoot>
+  <header class="bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50 transition-colors duration-300">
 
-        <header class="relative bg-white dark:bg-gray-900">
-          <nav aria-label="Top" class="mx-auto max-w-9xl px-4 sm:px-6 lg:px-8">
-            <div class="border-b border-gray-200 dark:border-gray-700">
-              <div class="flex h-16 items-center">
-                <!-- Mobile menu button -->
-                <button
-                  type="button"
-                  class="absolute rounded-md bg-white p-2 text-gray-400 dark:bg-gray-800 dark:text-gray-300 lg:hidden"
-                  @click="open = true"
-                >
-                  <span class="sr-only">Open menu</span>
-                  <Bars3Icon class="size-6" aria-hidden="true" />
-                </button>
+    <!-- Main Header -->
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex items-center justify-between gap-6">
+        <!-- Logo -->
+        <NuxtLink to="/" class="flex-shrink-0">
+          <svg viewBox="0 0 500 110" xmlns="http://www.w3.org/2000/svg" class="h-16 w-auto">
+            <!-- Elegant leaf/botanical design -->
+            <g id="icon">
+              <!-- Main leaves in vibrant green -->
+              <path d="M 45 75 Q 30 50, 50 35 Q 58 42, 55 58 Z" fill="#10B981" opacity="0.9">
+                <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+              </path>
+              <path d="M 75 75 Q 90 50, 70 35 Q 62 42, 65 58 Z" fill="#059669" opacity="0.95">
+                <animate attributeName="opacity" values="0.95;1;0.95" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+              </path>
+              
+              <!-- Center leaf -->
+              <path d="M 60 30 Q 48 42, 50 62 Q 60 58, 70 62 Q 72 42, 60 30 Z" fill="#34D399"/>
+              
+              <!-- Bottom stems -->
+              <ellipse cx="60" cy="72" rx="10" ry="5" fill="#10B981" opacity="0.7"/>
+              
+              <!-- Decorative dots -->
+              <circle cx="45" cy="50" r="2" fill="#6EE7B7" opacity="0.8"/>
+              <circle cx="75" cy="50" r="2" fill="#6EE7B7" opacity="0.8"/>
+            </g>
+            
+            <!-- Brand name with elegant styling -->
+            <text x="110" y="95" font-family="Georgia, serif" font-size="64" font-weight="700" letter-spacing="2" fill="#059669" font-style="italic">
+              Thibella.
+            </text>
 
-                <!-- Logo -->
-                <div class="ml-4 flex lg:ml-0">
-                  <a href="#">
-                    <span class="sr-only">Your Company</span>
-                    <img
-                      class="h-8 w-auto rounded-full"
-                      src="assets/img/IRA-LOGO-ORGINAL.jpg"
-                      alt=""
-                    />
-                  </a>
-                </div>
+            <!-- Smaller "com" text positioned right after "." -->
+            <text x="420" y="95" font-family="Georgia, serif" font-size="32" font-weight="400" fill="#059669" font-style="normal" opacity="0.85">
+              com
+            </text>
+            
+            <!-- Decorative flourish under the name -->
+            <path d="M 110 105 Q 180 108, 250 105 T 390 105" stroke="#10B981" stroke-width="2.5" fill="none" opacity="0.8" stroke-linecap="round"/>
+            
+            <!-- Elegant accent dots -->
+            <circle cx="395" cy="105" r="3" fill="#10B981"/>
+            <circle cx="405" cy="105" r="2" fill="#34D399" opacity="0.7"/>
+          </svg>
+        </NuxtLink>
+       <!-- Navigation Menu (Desktop) -->
+        <nav class="hidden lg:flex items-center gap-6">
+          <NuxtLink 
+            v-for="item in menuItems" 
+            :key="item.path"
+            :to="item.path"
+            class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+          >
+            {{ item.label }}
+          </NuxtLink>
+        </nav>
 
-                <!-- Flyout menus -->
-                <PopoverGroup class="hidden lg:ml-8 lg:block lg:self-stretch">
-                  <div class="flex h-full space-x-8">
-                    <Popover
-                      v-for="category in navigation.categories"
-                      :key="category.name"
-                      class="flex"
-                      v-slot="{ open }"
-                    >
-                      <PopoverButton
-                        :class="[ 
-                          open 
-                            ? 'border-indigo-600 text-indigo-600' 
-                            : 'border-transparent text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400', 
-                          'relative z-10 -mb-px flex items-center border-b-2 pt-px text-sm font-medium transition-colors duration-200 ease-out' 
-                        ]"
-                      >
-                        {{ category.name }}
-                      </PopoverButton>
-                    </Popover>
+        <!-- Search Bar -->
+        <div class="hidden md:flex flex-1 max-w-xl">
+          <div class="relative w-full">
+            <input 
+              type="text"
+              :value="searchQuery"
+              @input="(e) => performSearch(e.target.value)"
+              placeholder="Search products..."
+              class="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
 
-                    <a
-                      v-for="page in navigation.pages"
-                      :key="page.name"
-                      :href="page.href"
-                      class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
-                      >{{ page.name }}</a
-                    >
-                  </div>
-                </PopoverGroup>
+        <!-- Right Actions -->
+        <div class="flex items-center gap-4">
 
-                <!-- Right Side -->
-                <div class="ml-auto flex items-center">
-                  <!-- Dark Mode Toggle -->
-                  <div class="mr-4">
-                    <button
-                      @click="toggleDarkMode"
-                      class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
-                    >
-                                         
-                    </button>
-                  </div>
+          <select
+            v-model="currentLanguage"
+            class="bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-gray-700 dark:text-gray-300 cursor-pointer"
+            style="font-family: system-ui, 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;"
+          >
+            <option value="en">🇺🇸 English</option>
+            <option value="rw">🇷🇼 Kinyarwanda</option>
+            <option value="fr">🇫🇷 Français</option>
+          </select>
 
-                  <!-- Sign In / Create Account -->
-                  <div class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                    <a 
-                      href="/account/Facebook" v-if="!userStore.user" @mouseover="showDropdown" @mouseleave="closeDropdown"
-                      class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
-                      >Sign in</a
-                    >
-                    <a
-                    href="" v-if="userStore.user" @click="logout" @mouseover="showDropdown" @mouseleave="closeDropdown"
-                    class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400" 
-                    >Sign out</a
-                  >
 
-                    <!-- Dropdown Menu -->
-                      <div 
-                      v-if="open2" 
-                      @mouseover="cancelClose" 
-                      @mouseleave="closeDropdown"
-                class="absolute right-[calc(42px+280px)] mt-[175px] w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-0 z-10"
-                    >
-                      <LoginDropdown/>
-                    </div>
-                    <span
-                      class="h-6 w-px bg-gray-200 dark:bg-gray-700"
-                      aria-hidden="true"
-                    ></span>
-                      
-                    <a
-                      href="/CreateAccount"
-                      class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-400"
-                      >Create account</a
-                    >
-                  </div>
+          <!-- Cart -->
+          <NuxtLink 
+            to="/cart"
+            class="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            aria-label="Shopping cart"
+          >
+            <span class="text-2xl">🛒</span>
+            <span 
+              v-if="cartCount > 0"
+              class="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+            >
+              {{ cartCount }}
+            </span>
+          </NuxtLink>
 
-                  <!-- Language Selector -->
-                  <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-6">
-                    <div class="-m-2 flex items-center p-2">
-                      <select
-                        v-model="$i18n.locale"
-                        @change="switchLanguage"
-                        class="ml-3 block text-base font-medium text-gray-900 dark:text-gray-300 bg-transparent border-none cursor-pointer"
-                      >
-                        <option value="en">{{ $t("language.english") }}</option>
-                        <option value="rw">{{ $t("language.kinyarwanda") }}</option>
-                      </select>
-                    </div>
-                  </div>
+          <!-- User Account -->
+          <NuxtLink 
+            to="/account"
+            class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800  transition-colors hidden sm:block"
+            aria-label="User Account"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-700 dark:text-gray-300">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="text-gray-700 dark:text-gray-300 text-sm font-medium">Sign in</span>
+          </NuxtLink>
 
-                  <!-- Search -->
-                  <div class="flex lg:ml-6">
-                    <a href="/products/searchProduct" class="p-2 text-gray-400 hover:text-gray-500">
-                      <span class="sr-only">Search</span>
-                      <MagnifyingGlassIcon class="size-6" aria-hidden="true" />
-                    </a>
-                  </div>
+          <!-- Dark Mode Toggle -->
+          <button 
+            @click="toggleDarkMode"
+            class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
+            aria-label="Toggle dark mode"
+          >
+            <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </button>
+          <!-- Mobile Menu Toggle -->
+          <button 
+            @click="toggleMobileMenu"
+            class="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+            aria-label="Toggle menu"
+          >
+            <span class="text-2xl">☰</span>
+          </button>
+        </div>
+      </div>
 
-                  <!-- Cart -->
-                  <div class="ml-4 flow-root lg:ml-6">
-                    <a
-                      href="/ShoppingCartP" @click.prevent ="toggledisplaySorting"
-                      class="group -m-2 flex items-center p-2 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-400"
-                    >
-                      <img src="assets/img/Accessories/images/icons/cart-icon.png" alt="cart-icon"
-                        class="size-6 shrink-0"
-                        aria-hidden="true">
-                      
-                      <span v-if="cartStore.cartTotalQuantity.value >= 0" class="size ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >{{cartStore.cartTotalQuantity.value}}</span
-                      >
-                      <span class="sr-only">items in cart</span>
-                    </a>
-                  </div>
-                </div>
-                  <div class="ml-[20px]">
-                    <img v-if="userStore.user?.picture?.data?.url" 
-                    :src="userStore.user.picture.data.url" 
-                    alt="User Profile" 
-                    class="w-[50px] h-[50px] ml-[2px] rounded-full">
-               
-                 </div>
-              </div>
-            </div>
-          </nav>
-        </header>
-        <Sorting v-if="uiStore.isDisplaySorting"/>
-        
+      <!-- Mobile Search Bar -->
+      <div class="md:hidden mt-4">
+        <div class="relative">
+          <input 
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search products..."
+            class="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </span>
+        </div>
       </div>
     </div>
-  </div>
+
+    <!-- Mobile Menu -->
+    <div 
+      v-show="mobileMenuOpen"
+      class="lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700"
+    >
+      <nav class="container mx-auto px-4 py-4 flex flex-col gap-3">
+        
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-2">
+          <NuxtLink 
+            to="/account"
+            @click="mobileMenuOpen = false"
+            class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 py-2"
+          >
+            <span>👤</span>
+            <span>My Account</span>
+          </NuxtLink>
+        </div>
+      </nav>
+    </div>
+  </header>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useUserStore } from "~/stores/user"; // Import Pinia store
+import { ref, computed, watch, onMounted } from 'vue'
+import { useCartStore } from '~/stores/cart'
+import { useSearchStore } from '~/stores/search'
+import { useRouter } from 'vue-router'
 
-import {
-  Bars3Icon,
-  MagnifyingGlassIcon,
-} from "@heroicons/vue/24/outline";
-import { Popover, PopoverButton, PopoverGroup } from "@headlessui/vue";
-import LoginDropdown from "./AccountComp/loginDropdown.vue";
-import {useUiStore} from '@/stores/ui';
-import { useRouter } from "vue-router";
-// import { useAuthStore } from "@/stores/auth";
+// State
+const mobileMenuOpen = ref(false)
+const isDark = ref(false)
+const currentLanguage = ref('rw')
+const router = useRouter()
+const searchStore = useSearchStore()
+const searchQuery = ref(searchStore.query)
+const wishlistCount = ref(5)
 
-// const authStore = useAuthStore();
-// user authentication
-const userStore = useUserStore(); 
+// Cart Store
+const cartStore = useCartStore()
+const cartCount = computed(() => cartStore.cartTotalQuantity.value)
 
-// console.log('user on header component', userStore.state.user);
+// Set initial currency based on default language
+onMounted(() => {
+  // Trigger the language change to set initial currency
+  currentLanguage.value = currentLanguage.value
+})
 
-// cart 
-const cartStore = useCartStore();
-cartStore.loadCart();
-//console.log('cart', cartStore.$state.cart);
-
-// navigation categories
-const navigation = ref({
-  categories: [], 
-  pages: [
-    { name: "HOME", href: "/index" },
-    { name: "CONTACT", href: "/ContactUs" },
-    { name: "ABOUT", href: "/AboutUs" },
-    { name: "CATEGORIES", href: "products/AllCategories" },
-    { name: "FILTERS", href: "products/filters" },
-  ],
-});
-// vue router 
-
-const router = useRouter();
-
-// Sorting logic
-const uiStore = useUiStore();
-
-const toggledisplaySorting = () =>{
-  uiStore.toggleSorting(); 
-  router.push('/ShoppingCartP')
+// Methods
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value
 }
 
-
-// Dark mode logic
-const isDarkMode = ref(false);
-
 const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value;
-  if (typeof localStorage !== "undefined") {
-    document.documentElement.classList.toggle("dark", isDarkMode.value);
-    localStorage.setItem("dark-mode", isDarkMode.value);
+  isDark.value = !isDark.value
+  if (isDark.value) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
   }
-};
+}
 
-onMounted(() => {
-  if (typeof localStorage !== "undefined") {
-    const darkModeSetting = localStorage.getItem("dark-mode") === "true";
-    isDarkMode.value = darkModeSetting;
-    if (darkModeSetting) {
-      document.documentElement.classList.add("dark");
-    }
+const performSearch = (query) => {
+  searchQuery.value = query
+  searchStore.setQuery(query)
+  // Navigate to home page if not already there
+  if (router.currentRoute.value.path !== '/') {
+    router.push('/')
   }
-});
+}
 
-// Language Logic
-const { locale } = useI18n();
-const switchLanguage = (event) => {
-  const newLocale = event.target.value;
-  locale.value = newLocale;
-  localStorage.setItem("user-locale", newLocale);
-};
+// Initialize dark mode from localStorage or system preference
+if (process.client) {
+  const savedTheme = localStorage.getItem('theme')
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  
+  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    isDark.value = true
+    document.documentElement.classList.add('dark')
+  }
+}
 
-// Dropdown menu logic
-const open2 = ref(false);
-let timeout = null;
-
-const showDropdown = () => {
-  open2.value = true;
-};
-
-const closeDropdown = () => {
-  timeout = setTimeout(() => {
-    open2.value = false;
-  }, 300);
-};
-
-const cancelClose = () => {
-  clearTimeout(timeout);
-};
+// Watch language changes and update currency accordingly
+watch(currentLanguage, (newLang) => {
+  console.log('Language changed to:', newLang)
+  // Update currency based on language
+  switch(newLang) {
+    case 'en':
+      cartStore.setCurrency('USD')
+      break
+    case 'rw':
+      cartStore.setCurrency('RWF')
+      break
+    case 'fr':
+      cartStore.setCurrency('EUR')
+      break
+  }
+  // Here you would implement actual language switching logic
+})
 </script>
+
+<style scoped>
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color;
+  transition-timing-function: ease-in-out;
+  transition-duration: 200ms;
+}
+</style>
