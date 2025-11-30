@@ -109,14 +109,13 @@ const f = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
-
 onMounted(async () => {
   try {
     loading.value = true;
     error.value = null;
     
     // Fetch fresh data from API
-    const res = await apiFetch('api/products', {
+    const res = await apiFetch('/products', {
       method: 'GET', 
       headers: {
         'Content-Type': 'application/json',

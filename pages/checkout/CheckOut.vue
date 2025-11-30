@@ -42,10 +42,7 @@
                 
               </span>
             </div>
-            <!-- <div class="flex justify-between">
-              <span>Discount:</span>
-              <span> $0.00 </span>
-            </div> -->
+
             <div class="flex justify-between dark:text-gray-300">
               <span>Shipping:</span>
               <span class="dark:text-gray-200">{{ cartStore.getShippingCost() }}</span>
@@ -186,40 +183,8 @@ const paymentMethod = ref('mobile_money');
 
 // Function to handle order placement
 const handlePlaceOrder = async () => {
-  // if (!authStore.userId) {
-  //   alert("Please log in first!");
-  //   return;
 
 
-  // // Basic form validation
-  // if (!formData.value.email) {
-  //   alert("Please enter your email address");
-  //   return;
-  // }
-  
-  // if (!formData.value.phoneNumber) {
-  //   alert("Please enter your phone number");
-  //   return;
-  // }
-  
-  // if (!formData.value.country || !formData.value.fullName || !formData.value.addressLine1 || !formData.value.city) {
-  //   alert("Please fill in all required shipping address fields");
-  //   return;
-  // }
-  
-  // if (formData.value.paymentMethod === 'mobile_money' && !formData.value.mobileMoneyNumber) {
-  //   alert("Please enter your Mobile Money Number");
-  //   return;
-  // }
-
-  // if (formData.value.paymentMethod === 'bank_account' && 
-  //    (!formData.value.nameOnCard || !formData.value.cardNumber || !formData.value.cardExpiry || !formData.value.cardCVC)) {
-  //   alert("Please fill in all card details");
-  //   return;
-  // }
-  // }
-
-  try {
        // Create the shipping and payment info to attach to the order as metadata
        const orderMetadata = {
       contactInfo: {
@@ -249,28 +214,11 @@ const handlePlaceOrder = async () => {
       subscription: formData.value.isSubscribed,
       promoCode: formData.value.promoCode,
       currency: cartStore.selectedCurrency
-    };
 
-    // Store the metadata in localStorage to access it later
-    if (import.meta.client) {
-      localStorage.setItem('lastOrderMetadata', JSON.stringify(orderMetadata));
-    }
-    
-    // Call the existing placeOrder function with userId
-    const order = await orderStore.placeOrder();
-    console.log("Order placed:", order);
-    
-    if (order) {
-      alert(`Order placed successfully! Order ID: ${order.id}`);
-      
-      // Navigate to order confirmation page
-      await nextTick();
-      router.push(`/orders/${order.id}`);
-   }
+
   }
-    catch (error) {
-    console.error("Order placement error:", error);
-    alert(error.message || "Failed to place order");
-  }
+
+      // router.push(`/orders/${order.id}`);
+      router.push("/orders/order");
 };
 </script>

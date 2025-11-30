@@ -4,14 +4,11 @@ import { apiFetch } from "~/utils/api";
 import { useCartStore } from '~/stores/cart';
 
 const cartStore = useCartStore();
-
 const route = useRoute();
-const router = useRouter();
 const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const selectedImage = ref(null);
-
 const selectedColor = ref('');
 const selectedClothingSize = ref('');
 const selectedShoesSize = ref('');
@@ -23,7 +20,7 @@ const permanentlySelectedImage = ref(null);
 const isProductInCart = computed(() => {
   if (!product.value) return false;
   
-  // Generate the same cartItemId that would be used when adding to cart
+  // color, cothing and shoes sizes in the cart
   const currentOptions = {
     color: selectedColor.value,
     clothingSize: selectedClothingSize.value,
@@ -56,45 +53,14 @@ const selectShoesSize = (size) => {
 
 cartStore.loadCart();
 
-// Function to find product by ID in local storage
-// Function to find product by ID in local storage
-const findProductInLocalStorage = (productId) => {
-  try {
-    const cachedProducts = localStorage.getItem('products');
-    if (cachedProducts) {
-      const products = JSON.parse(cachedProducts);
-      const foundProduct = products.find(p => p.id === productId);
-      
-      if (foundProduct) {
-        // Transform the product to match the expected structure
-        return {
-          ...foundProduct,
-          colors: foundProduct.color ? [foundProduct.color] : [],
-          clothingSizes: foundProduct.clothingSize ? [foundProduct.clothingSize] : [],
-          shoesSizes: foundProduct.shoesSize && foundProduct.shoesSize !== 0 ? [foundProduct.shoesSize] : [],
-          possibleImagesOfProduct: foundProduct.image ? [foundProduct.image] : []
-        };
-      }
-    }
-  } catch (e) {
-    console.error('Error reading from local storage:', e);
-  }
-  return null;
-};
-
 onMounted(async () => {
-  try {
+
     loading.value = true;
     const productId = route.params.id;
 
-    // Validate UUID format
-    if (!productId || typeof productId !== 'string') {
-      throw new Error('Invalid product ID');
-    }
-
     // Try to load from API first
     try {
-      const response = await apiFetch(`api/products/${productId}`, {
+      const response = await apiFetch(`/products/${productId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -102,35 +68,15 @@ onMounted(async () => {
         },
       });
 
-      // If API call is successful, use the response
       product.value = response;
       console.log("Product loaded from API:", product.value);
-      loading.value = false;
-      return; // Exit early if API call succeeds
-    } catch (apiError) {
-      console.warn("API request failed, trying local storage...", apiError);
-      
-      // If API fails, try to find the product in local storage
-      const cachedProduct = findProductInLocalStorage(productId);
-      
-      if (cachedProduct) {
-        console.log("Using product from local storage:", cachedProduct);
-        product.value = cachedProduct;
-        loading.value = false;
-        error.value = null; // Clear any errors
-        return; // Exit successfully
-      }
-      
-      // If not found in local storage either, set error
-      console.error("Product not found in API or localStorage");
-      error.value = "Product not found";
-      loading.value = false;
-    }
-  } catch (err) {
-    console.error("Error loading product:", err);
-    error.value = "Failed to load product details";
-    loading.value = false;
-  }
+
+    } catch (err) {
+      console.warn(err);
+    }finally {
+  loading.value = false; 
+}
+ 
 });
 
 // Initialize selected image when product loads
@@ -386,7 +332,7 @@ const handleBuyNow = () => {
          <span class="flex flex-row gap-4">
            <button 
            @click="handleBuyNow"
-           :class="isProductInCart ? 'bg-green-500 dark:bg-green-400 hover:bg-green-600' : 'bg-blue-500 dark:bg-blue-400 hover:bg-blue-600'"
+           :class="isProductInCart ? 'bg-green-500 dark:bg-green-400 hover:bg-green-600' : 'bg-green-500 dark:bg-green-400 hover:bg-green-600'"
            class="mt-6 text-white px-6 py-3 rounded-lg w-48 transition-colors"
            >
            {{ buttonText }}
