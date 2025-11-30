@@ -95,7 +95,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, } from 'vue';
 import { apiFetch } from '~/utils/api';
 import { useSearchStore } from '~/stores/search';
 import { useCartStore } from '~/stores/cart';
@@ -109,13 +109,13 @@ const f = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
+
 onMounted(async () => {
   try {
     loading.value = true;
     error.value = null;
     
     // Fetch fresh data from API
-    // console.log("Fetching products from API...");
     const res = await apiFetch('api/products', {
       method: 'GET', 
       headers: {
@@ -144,8 +144,18 @@ onMounted(async () => {
       data.value = res;
       f.value = products;
       
-      // Cache the products
-      localStorage.setItem("products", JSON.stringify(products));
+      // Transform products to match expected structure before caching
+      const transformedProducts = products.map(product => ({
+        ...product,
+        colors: product.colors || (product.color ? [product.color] : []),
+        clothingSizes: product.clothingSizes || (product.clothingSize ? [product.clothingSize] : []),
+        shoesSizes: product.shoesSizes || (product.shoesSize && product.shoesSize !== 0 ? [product.shoesSize] : []),
+        possibleImagesOfProduct: product.possibleImagesOfProduct || (product.image ? [product.image] : [])
+      }));
+      
+      // Cache with the correct key: "products"
+      localStorage.setItem("products", JSON.stringify(transformedProducts));
+      console.log("Cached transformed products:", transformedProducts);
     } else {
       console.warn("No products found in API response");
       if (f.value.length === 0) {
@@ -157,8 +167,8 @@ onMounted(async () => {
     console.error('Error fetching data:', err);
     error.value = err.message || 'Failed to load products';
     
-    // If API fails, try to use cached data
-    const cachedProducts = localStorage.getItem("api/products");
+    // If API fails, try to use cached data with CORRECT key
+    const cachedProducts = localStorage.getItem("products"); // ✅ Fixed key
     if (cachedProducts && f.value.length === 0) {
       try {
         f.value = JSON.parse(cachedProducts);

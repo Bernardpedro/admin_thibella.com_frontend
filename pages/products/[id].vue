@@ -56,36 +56,79 @@ const selectShoesSize = (size) => {
 
 cartStore.loadCart();
 
+// Function to find product by ID in local storage
+// Function to find product by ID in local storage
+const findProductInLocalStorage = (productId) => {
+  try {
+    const cachedProducts = localStorage.getItem('products');
+    if (cachedProducts) {
+      const products = JSON.parse(cachedProducts);
+      const foundProduct = products.find(p => p.id === productId);
+      
+      if (foundProduct) {
+        // Transform the product to match the expected structure
+        return {
+          ...foundProduct,
+          colors: foundProduct.color ? [foundProduct.color] : [],
+          clothingSizes: foundProduct.clothingSize ? [foundProduct.clothingSize] : [],
+          shoesSizes: foundProduct.shoesSize && foundProduct.shoesSize !== 0 ? [foundProduct.shoesSize] : [],
+          possibleImagesOfProduct: foundProduct.image ? [foundProduct.image] : []
+        };
+      }
+    }
+  } catch (e) {
+    console.error('Error reading from local storage:', e);
+  }
+  return null;
+};
+
 onMounted(async () => {
   try {
     loading.value = true;
     const productId = route.params.id;
 
-    // Validate UUID format (optional but recommended)
+    // Validate UUID format
     if (!productId || typeof productId !== 'string') {
       throw new Error('Invalid product ID');
     }
 
-    // Fetch single product directly from backend
-    const response = await apiFetch(`api/products/${productId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept-Language": "en",
-      },
-    });
+    // Try to load from API first
+    try {
+      const response = await apiFetch(`api/products/${productId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept-Language": "en",
+        },
+      });
 
-    // Your Spring controller returns the ProductDTO directly, not wrapped in a data property
-    product.value = response;
-    console.log("product from data loader", product.value);
-  } catch (err) {
-    console.error("Error fetching product:", err);
-    if (err.status === 404) {
+      // If API call is successful, use the response
+      product.value = response;
+      console.log("Product loaded from API:", product.value);
+      loading.value = false;
+      return; // Exit early if API call succeeds
+    } catch (apiError) {
+      console.warn("API request failed, trying local storage...", apiError);
+      
+      // If API fails, try to find the product in local storage
+      const cachedProduct = findProductInLocalStorage(productId);
+      
+      if (cachedProduct) {
+        console.log("Using product from local storage:", cachedProduct);
+        product.value = cachedProduct;
+        loading.value = false;
+        error.value = null; // Clear any errors
+        return; // Exit successfully
+      }
+      
+      // If not found in local storage either, set error
+      console.error("Product not found in API or localStorage");
       error.value = "Product not found";
-    } else {
-      error.value = "Failed to load product details";
+      loading.value = false;
     }
-  } finally {
+  } catch (err) {
+    console.error("Error loading product:", err);
+    error.value = "Failed to load product details";
     loading.value = false;
   }
 });
@@ -161,27 +204,25 @@ const handleBuyNow = () => {
   console.log("Selected options:", currentOptions);
 };
 
-// Function allowing to move to shopping cart
-const moveToCart = () => {
-  // Navigate to the shopping cart page
-  router.push('/ShoppingCartP');
-};
 </script>
 
 <template>
+    <!-- Add dark mode background to the main wrapper -->
+  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+
   <!-- Loading State -->
   <div v-if="loading" class="container mx-auto p-4 text-center">
-    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-    <p class="mt-4 text-gray-600">Loading product details...</p>
+    <div class="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 dark:border-blue-400 mx-auto"></div>
+    <p class="mt-4 text-gray-600 dark:text-gray-300">Loading product details...</p>
   </div>
 
   <!-- Error State -->
   <div v-else-if="error" class="container mx-auto p-4 text-center">
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-      <p>{{ error }}</p>
+    <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg shadow">
+      <p class="font-medium">{{ error }}</p>
       <button 
         @click="$router.go(-1)" 
-        class="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        class="mt-3 bg-red-500 dark:bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition-colors duration-200"
       >
         Go Back
       </button>
@@ -190,7 +231,7 @@ const moveToCart = () => {
 
   <!-- Product Details -->
   <div v-else-if="product" class="container mx-auto p-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start bg-white dark:bg-gray-900 p-6 rounded-lg shadow dark:shadow-gray-800">
       <!-- Image Gallery (Top-Left) - Modified Layout -->
       <div class="self-start">
         <div class="flex gap-4 max-h-96">
@@ -199,7 +240,7 @@ const moveToCart = () => {
             <img 
               :src="selectedImage || product.image" 
               alt="Product" 
-              class="w-full h-96 object-contain rounded-lg shadow-lg bg-gray-50 transition-all duration-300"
+              class="w-full h-96 object-contain rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800 transition-all duration-300"
             />
           </div>
           
@@ -223,17 +264,17 @@ const moveToCart = () => {
       </div>
 
       <!-- Product Details (Right) -->
-      <div>
-        <h1 class="text-2xl font-bold">{{ product.name }}</h1>
-        <p class="text-gray-500">{{ product.description }}</p>
+      <div class="text-gray-900 dark:text-white">
+        <h1 class="text-2xl font-bold dark:text-white">{{ product.name }}</h1>
+        <p class="text-gray-500 dark:text-gray-300">{{ product.description }}</p>
         <div class="flex items-center mt-2">
           <span class="text-yellow-500">
             <!-- Add rating stars display here when available from API -->
             ⭐⭐⭐⭐⭐
           </span>
-          <span class="ml-2 text-gray-600">(19 orders)</span>
+          <span class="ml-2 text-gray-600 dark:text-gray-300">(19 orders)</span>
         </div>
-        <p class="text-3xl text-blue-600 font-bold my-4">
+        <p class="text-3xl text-blue-600 dark:text-blue-400 font-bold my-4">
           {{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency) }}
         </p>
 
@@ -245,21 +286,21 @@ const moveToCart = () => {
               v-for="color in product.colors"
               :key="color"
                @click="selectColor(color)"
-              class="px-3 py-1 bg-gray-100 rounded-lg text-sm"
+              class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm"
             >
-            <button v-if="color == 'blue'" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors">
+            <button v-if="color == 'blue'" class="bg-blue-500 dark:bg-blue-400 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors">
               {{ color }}
             </button>
-            <button v-else-if="color == 'red'" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors">
+            <button v-else-if="color == 'red'" class="bg-red-500 dark:bg-red-400 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors">
               {{ color }}
             </button>
-            <button v-else-if="color == 'white'" class="bg-white-500 text-black px-2 py-1 rounded hover:bg-gray-200 hover:text-black transition-colors">
+            <button v-else-if="color == 'white'" class="bg-white-500 dark:bg-gray-700 text-black px-2 py-1 rounded hover:bg-gray-200 hover:text-black transition-colors">
               {{ color }}
             </button>
-            <button v-else-if="color == 'green'" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors">
+            <button v-else-if="color == 'green'" class="bg-green-500 dark:bg-green-400 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors">
               {{ color }}
             </button>
-            <button v-else-if="color == 'yellow'" class="bg-yellow-300 text-white px-2 py-1 rounded hover:bg-yellow-500 transition-colors">
+            <button v-else-if="color == 'yellow'" class="bg-yellow-300 dark:bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500 transition-colors">
               {{ color }}
             </button>
           </span>
@@ -296,7 +337,7 @@ const moveToCart = () => {
           <p class="font-semibold">Available Sizes:</p>
           <div class="flex space-x-2 flex-wrap">
             <button>
-              <span class="px-3 py-1 m-1 bg-gray-400 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.clothingSizes" 
+              <span class="px-3 py-1 m-1 bg-gray-400 dark:bg-gray-700 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.clothingSizes" 
               :key="size"
               @click="selectClothingSize(size)">
                 {{ size }}
@@ -321,7 +362,7 @@ const moveToCart = () => {
           <p class="font-semibold">Shoe Size:</p>
           <div class="flex space-x-2 flex-wrap">
             <button>
-              <span class="px-3 py-1 m-1 bg-gray-400 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.shoesSizes" 
+              <span class="px-3 py-1 m-1 bg-gray-400 dark:bg-gray-700 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.shoesSizes" 
               :key="size"
               @click="selectShoesSize(size)">
                 {{ size }}
@@ -345,21 +386,11 @@ const moveToCart = () => {
          <span class="flex flex-row gap-4">
            <button 
            @click="handleBuyNow"
-           :class="isProductInCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'"
+           :class="isProductInCart ? 'bg-green-500 dark:bg-green-400 hover:bg-green-600' : 'bg-blue-500 dark:bg-blue-400 hover:bg-blue-600'"
            class="mt-6 text-white px-6 py-3 rounded-lg w-48 transition-colors"
            >
            {{ buttonText }}
           </button>
-          <!--  Move to shopping cart Button -->
-          <button 
-          @click="moveToCart"
-          class=" bg-blue-500 hover:bg-blue-600 mt-6 text-white px-6 py-3 rounded-lg w-48 flex justify-center gap-2 transition-colors"
-          >
-          <img src="assets/img/Accessories/images/icons/cart-icon.png" alt="cart-icon"
-                        class="size-6 shrink-0"
-                        aria-hidden="true">
-          Shopping Cart
-        </button>
       </span>
       </div>
     </div>
@@ -367,12 +398,13 @@ const moveToCart = () => {
 
   <!-- Product Not Found -->
   <div v-else class="container mx-auto p-4 text-center">
-    <p class="text-gray-500">Product not found</p>
+    <p class="text-gray-500 dark:text-gray-300">Product not found</p>
     <button 
       @click="$router.go(-1)" 
-      class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      class="mt-2 bg-blue-500 dark:bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-600"
     >
       Go Back
     </button>
+  </div>
   </div>
 </template>
