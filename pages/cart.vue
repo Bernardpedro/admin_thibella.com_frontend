@@ -103,13 +103,11 @@ layout:'default',
                     <select v-model="cartStore.selectedShipping" class="border p-1 w-[200px] rounded">
                       <option disabled value="">Choose Shipping</option>
                       <option value="Standard">Standard (5-7 days)</option>
-                      <!-- <option value="Express">Express (2-3 days)</option>
-                      <option value="Overnight">Overnight (1 day)</option> -->
                     </select>
                     </span>
                   </div>
                   <div class="mt-3 flex gap-4">
-                    <span class="text-sm text-blue-500 hover:underline">
+                    <span class="text-sm text-green-500 hover:underline">
                        <!-- Display selected size for THIS specific product -->
                       <span v-if="product.selectedClothingSize" class="p-2 text-lg text-gray-900 dark:text-white rounded">
                         <span class="font-semibold">Size: </span>
