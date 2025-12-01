@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { watch } from 'vue';
 import { useCartStore } from "@/stores/cart"; 
 import { formatCurrency } from "@/stores/currencyFormatter";
 
@@ -32,8 +32,13 @@ watch(() => cartStore.selectedCurrency, (newCurrency) => {
 
 watch(() => cartStore.selectedShipping, (newSelectedShipping) => {
   console.log("Shipping changed to:", newSelectedShipping);
-  cartStore.setShipping(newSelectedShipping); // save the change of new shipping
+  cartStore.setShipping(newSelectedShipping);
 });
+
+watch(()=> cartStore.cart, (newCartStoreCart)=> {
+  console.log("cartStore care", newCartStoreCart);
+});
+
 
 cartStore.loadCart();
 
@@ -65,7 +70,6 @@ layout:'default',
                 :key="product.id"
                 class="flex items-center border-b pb-6 pt-6 border-gray-200 dark:border-gray-700"
               >
-                <input type="checkbox" class="mr-4 w-5 h-5 rounded border-gray-300" />
                 <img class="h-24 w-24 object-cover" :src="product.image" :alt="product.name" />
                 
                 <div class="flex-1 ml-4">
@@ -91,16 +95,28 @@ layout:'default',
                       </span>
 
                     <!-- </span> -->
-                    <span class="p-0 text-sm bg-gray-200 rounded">
-                      <select v-model="cartStore.selectedCurrency"  class="border p-1 w-[120px] rounded">
+                    <span class="flex items-center h-fit p-0 text-sm bg-gray-200 dark:bg-gray-700 rounded">
+                      <select v-model="cartStore.selectedCurrency" 
+                       class="
+                       border dark:border-gray-600 p-1 w-[120px] rounded
+                       bg-white dark:bg-gray-800 
+                       text-gray-800 dark:text-gray-200
+                        "
+                        >
                         <option disabled value="">currency</option>
                         <option value="RWF">RWF</option>
                         <option value="USD">USD</option>
                         <option value="EUR">EURO</option>
                       </select>
                     </span>
-                    <span class="p-0 text-sm bg-gray-200 rounded">
-                    <select v-model="cartStore.selectedShipping" class="border p-1 w-[200px] rounded">
+                    <span class="flex items-center h-fit p-0 text-sm bg-gray-200 dark:bg-gray-700 rounded">
+                    <select v-model="cartStore.selectedShipping" 
+                    class="
+                    border dark:border-gray-600 p-1 w-[200px] rounded
+                    bg-white dark:bg-gray-800 
+                    text-gray-800 dark:text-gray-200
+                    "
+                    >
                       <option disabled value="">Choose Shipping</option>
                       <option value="Standard">Standard (5-7 days)</option>
                     </select>
@@ -109,20 +125,12 @@ layout:'default',
                   <div class="mt-3 flex gap-4">
                     <span class="text-sm text-green-500 hover:underline">
                        <!-- Display selected size for THIS specific product -->
-                      <span v-if="product.selectedClothingSize" class="p-2 text-lg text-gray-900 dark:text-white rounded">
+                      <span v-if="product.selectedSize" class="p-2 text-lg text-gray-900 dark:text-white rounded">
                         <span class="font-semibold">Size: </span>
                         
-                          {{ product.selectedClothingSize }}
+                          {{ product.selectedSize }}
                         </span>
                       </span>
-
-                     <!-- Display selected size for THIS specific product -->
-                      <span v-if="product.selectedShoesSize" class="p-2 text-lg text-gray-900 dark:text-white rounded">
-                        <span class="font-semibold">Size: </span>
-                        
-                          {{ product.selectedShoesSize }}
-                        </span>
-
 
                     <button class="text-sm text-red-500 hover:underline"
                      @click="cartStore.removeFromCart(product.cartItemId)">
@@ -132,11 +140,11 @@ layout:'default',
                 </div>
 
                 <div class="flex items-center ml-auto">
-                  <button @click="decrement(product)" class="px-2 py-1 text-white ">-</button>
-                  <input type="text" :value="product.quantity" readonly class="w-10  text-center bg-slate-500 " />
-                  <button @click="increment(product)" class="px-2 py-1 text-white">+</button>
+                  <button @click="decrement(product)" class="px-2 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 rounded">-</button>
+                  <input type="text" :value="product.quantity" readonly class="w-10 text-center bg-white text-gray-800 dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600" />
+                  <button @click="increment(product)" class="px-2 py-1 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 rounded">+</button>
                 </div>
-
+                
                 <p v-if="cartStore.selectedCurrency ==='RWF' " class="ml-6 font-semibold text-gray-900 dark:text-white">
                   {{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency ) }} 
                 </p>

@@ -215,7 +215,6 @@ const handlePlaceOrder = async () => {
       promoCode: formData.value.promoCode,
       currency: cartStore.selectedCurrency
 
-
   }
 
       // router.push(`/orders/${order.id}`);

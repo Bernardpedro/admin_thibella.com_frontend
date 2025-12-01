@@ -34,14 +34,14 @@
             <div 
             @click="goToProductDetails(product.id)"
             class="h-48 w-full overflow-hidden rounded-md cursor-pointer">
-              <NuxtLink to="/products/ProductOverView">
+              <!-- <NuxtLink to="/products/ProductOverView"> -->
               
               <img
                 class="block h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-90"
                 :src="product.image"
                 :alt="product.name"
               />
-              </NuxtLink>
+              <!-- </NuxtLink> -->
             </div>
 
             <!-- Product Details -->
@@ -122,65 +122,123 @@ onMounted(async () => {
         'Accept-Language': 'en'
       }
     });
+
     
     // Handle different possible response structures
     let products = [];
-    
+
     if (Array.isArray(res)) {
+      // If the response is already an array
       products = res;
-    } else if (res && res.data && Array.isArray(res.data)) {
-      products = res.data;
-    } else if (res && res.products && Array.isArray(res.products)) {
-      products = res.products;
     } else if (res && typeof res === 'object') {
+      // If it's a single product object, wrap it in an array
+      products = [res];
+      
+      // Check if there are any array properties in the response
       const arrayKeys = Object.keys(res).filter(key => Array.isArray(res[key]));
-      if (arrayKeys.length > 0) {
+      if (arrayKeys.length > 0 && arrayKeys[0] !== 'possibleImagesOfProduct') {
+        // Use the first array property found (except possibleImagesOfProduct)
         products = res[arrayKeys[0]];
       }
     }
-    
-    if (products.length > 0) {
+
+    // Now transform the products
+    if (products && products.length > 0) {
       data.value = res;
       f.value = products;
       
-      // Transform products to match expected structure before caching
-      const transformedProducts = products.map(product => ({
-        ...product,
-        colors: product.colors || (product.color ? [product.color] : []),
-        clothingSizes: product.clothingSizes || (product.clothingSize ? [product.clothingSize] : []),
-        shoesSizes: product.shoesSizes || (product.shoesSize && product.shoesSize !== 0 ? [product.shoesSize] : []),
-        possibleImagesOfProduct: product.possibleImagesOfProduct || (product.image ? [product.image] : [])
-      }));
+      console.log("Products before transformation:", products);
       
-      // Cache with the correct key: "products"
+      const transformedProducts = products.map(product => {
+        const transformed = {
+          ...product,
+          colors: Array.isArray(product.colors) ? product.colors : 
+                (product.color ? [product.color] : []),
+          size: Array.isArray(product.size) ? product.size : 
+              (product.size ? [product.size] : []),
+          possibleImagesOfProduct: Array.isArray(product.possibleImagesOfProduct) ? 
+                                product.possibleImagesOfProduct : 
+                                (product.image ? [product.image] : [])
+        };
+        
+        console.log("Transformed product:", transformed);
+        return transformed;
+      });
+      
+      console.log("All transformed products:", transformedProducts);
       localStorage.setItem("products", JSON.stringify(transformedProducts));
-      console.log("Cached transformed products:", transformedProducts);
     } else {
-      console.warn("No products found in API response");
-      if (f.value.length === 0) {
-        error.value = "No products available";
-      }
+      console.warn("No products found in the response");
     }
-    
   } catch (err) {
-    console.error('Error fetching data:', err);
-    error.value = err.message || 'Failed to load products';
-    
-    // If API fails, try to use cached data with CORRECT key
-    const cachedProducts = localStorage.getItem("products"); // ✅ Fixed key
-    if (cachedProducts && f.value.length === 0) {
-      try {
-        f.value = JSON.parse(cachedProducts);
-        console.log("Using cached products due to API error:", f.value);
-        error.value = null; // Clear error if we have cached data
-      } catch (parseError) {
-        console.error("Failed to parse cached products:", parseError);
-      }
-    }
+    console.error('Error fetching products:', err);
+    error.value = 'Failed to load products';
   } finally {
     loading.value = false;
   }
 });
+    
+    // Handle different possible response structures
+//     let products = [];
+    
+//     if (Array.isArray(res)) {
+//       products = res;
+//     } else if (res && res.data && Array.isArray(res.data)) {
+//       products = res.data;
+//     } else if (res && res.products && Array.isArray(res.products)) {
+//       products = res.products;
+//     } else if (res && typeof res === 'object') {
+//       const arrayKeys = Object.keys(res).filter(key => Array.isArray(res[key]));
+//       if (arrayKeys.length > 0) {
+//         products = res[arrayKeys[0]];
+//       }
+//     }
+    
+//     if (products.length > 0) {
+//       data.value = res;
+//       f.value = products;
+
+//       // Add this right after the API call to see the raw response
+//       console.log("Raw API Response:", res);
+      
+//       // Transform products to match expected structure before caching
+//       const transformedProducts = products.map(product => ({
+//         ...product,
+//         colors: product.colors || (product.color ? [product.color] : []),
+//         size: product.size || (product.size ? [product.size] : []),
+//         possibleImagesOfProduct: product.possibleImagesOfProduct || (product.image ? [product.image] : [])
+//       }));
+      
+//       console.log("Transformed products:", transformedProducts);
+//       // Cache with the correct key: "products"
+//       localStorage.setItem("products", JSON.stringify(transformedProducts));
+//       console.log("Cached transformed products:", transformedProducts);
+//     } else {
+//       console.warn("No products found in API response");
+//       if (f.value.length === 0) {
+//         error.value = "No products available";
+//       }
+//     }
+    
+//   } catch (err) {
+//     console.error('Error fetching data:', err);
+//     error.value = err.message || 'Failed to load products';
+    
+//     // If API fails, try to use cached data with CORRECT key
+//     const cachedProducts = localStorage.getItem("products"); // ✅ Fixed key
+//     if (cachedProducts && f.value.length === 0) {
+//       try {
+//         f.value = JSON.parse(cachedProducts);
+//         console.log("Using cached products due to API error:", f.value);
+//         error.value = null; // Clear error if we have cached data
+//       } catch (parseError) {
+//         console.error("Failed to parse cached products:", parseError);
+//       }
+//     }
+//   } finally {
+//     loading.value = false;
+//   }
+// });
 
 const productsData = computed(() => {
   // Use f.value (cached/processed products) as the primary source

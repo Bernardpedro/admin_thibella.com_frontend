@@ -1,8 +1,10 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
+import { useRouter } from 'vue-router';
 import { apiFetch } from "~/utils/api";
 import { useCartStore } from '~/stores/cart';
 
+const router = useRouter();
 const cartStore = useCartStore();
 const route = useRoute();
 const product = ref(null);
@@ -10,8 +12,7 @@ const loading = ref(true);
 const error = ref(null);
 const selectedImage = ref(null);
 const selectedColor = ref('');
-const selectedClothingSize = ref('');
-const selectedShoesSize = ref('');
+const selectedSize = ref('');
 
 // Track the permanently selected image (from clicks)
 const permanentlySelectedImage = ref(null);
@@ -20,11 +21,10 @@ const permanentlySelectedImage = ref(null);
 const isProductInCart = computed(() => {
   if (!product.value) return false;
   
-  // color, cothing and shoes sizes in the cart
+  // color and size in the cart
   const currentOptions = {
     color: selectedColor.value,
-    clothingSize: selectedClothingSize.value,
-    shoesSize: selectedShoesSize.value
+    size: selectedSize.value,
   };
   
   // Check if item exists in cart using the cart store method
@@ -33,7 +33,7 @@ const isProductInCart = computed(() => {
 
 // Computed property for button text
 const buttonText = computed(() => {
-  return isProductInCart.value ? 'Added to Cart' : 'Buy Now';
+  return isProductInCart.value ? 'Go to Cart' : 'Buy Now';
 });
 
 // use local state to select color 
@@ -42,13 +42,8 @@ const selectColor = (color) => {
 };
 
 // use local state to select clothing size
-const selectClothingSize = (size) => {
-  selectedClothingSize.value = size;
-};
-
-// use local state to select shoes size
-const selectShoesSize = (size) => {
-  selectedShoesSize.value = size;
+const selectSize = (size) => {
+  selectedSize.value = size;
 };
 
 cartStore.loadCart();
@@ -114,8 +109,7 @@ const handleBuyNow = () => {
 
   const currentOptions = {
     color: selectedColor.value,
-    clothingSize: selectedClothingSize.value,
-    shoesSize: selectedShoesSize.value
+    size: selectedSize.value,
   };
 
   // Check if product with these exact options is already in cart
@@ -129,8 +123,7 @@ const handleBuyNow = () => {
       
       const optionsText = [];
       if (selectedColor.value) optionsText.push(`Color: ${selectedColor.value}`);
-      if (selectedClothingSize.value) optionsText.push(`Size: ${selectedClothingSize.value}`);
-      if (selectedShoesSize.value) optionsText.push(`Size: ${selectedShoesSize.value}`);
+      if (selectedSize.value) optionsText.push(`Size: ${selectedSize.value}`);
 
       alert(`${product.value.name}${optionsText.length ? ` (${optionsText.join(', ')})` : ''} is added to cart again`);
     }
@@ -140,8 +133,7 @@ const handleBuyNow = () => {
     
     const optionsText = [];
     if (selectedColor.value) optionsText.push(`Color: ${selectedColor.value}`);
-    if (selectedClothingSize.value) optionsText.push(`Size: ${selectedClothingSize.value}`);
-    if (selectedShoesSize.value) optionsText.push(`Size: ${selectedShoesSize.value}`);
+    if (selectedSize.value) optionsText.push(`Size: ${selectedSize.value}`);
 
     alert(`${product.value.name}${optionsText.length ? ` (${optionsText.join(', ')})` : ''} is added to cart`);
   }
@@ -149,6 +141,21 @@ const handleBuyNow = () => {
   console.log("Product added to cart:", product.value);
   console.log("Selected options:", currentOptions);
 };
+
+
+const colorClasses = {
+  blue: "bg-blue-500 hover:bg-blue-600 text-white",
+  red: "bg-red-500 hover:bg-red-600 text-white",
+  white: "bg-white text-black hover:bg-gray-200",
+  green: "bg-green-500 hover:bg-green-600 text-white",
+  yellow: "bg-yellow-300 hover:bg-yellow-400 text-black",
+};
+
+// default color if the color is not in the map
+const defaultColorClass = "bg-gray-400 hover:bg-gray-500 text-white";
+
+
+
 
 </script>
 
@@ -213,79 +220,52 @@ const handleBuyNow = () => {
       <div class="text-gray-900 dark:text-white">
         <h1 class="text-2xl font-bold dark:text-white">{{ product.name }}</h1>
         <p class="text-gray-500 dark:text-gray-300">{{ product.description }}</p>
-        <div class="flex items-center mt-2">
-          <span class="text-yellow-500">
-            <!-- Add rating stars display here when available from API -->
-            ⭐⭐⭐⭐⭐
-          </span>
-          <span class="ml-2 text-gray-600 dark:text-gray-300">(19 orders)</span>
-        </div>
-        <p class="text-3xl text-blue-600 dark:text-blue-400 font-bold my-4">
+        <p class="text-3xl text-green-600 dark:text-green-400 font-bold my-4">
           {{ formatCurrency(cartStore.convertPrice(product.priceCents), cartStore.selectedCurrency) }}
         </p>
 
         <!-- loop in product.color and display buttons of Colors -->
+
         <div v-if="product.colors?.length">
-          <p class="font-semibold">Available Colors:</p>
-          <div class="flex space-x-2">
-            <span
-              v-for="color in product.colors"
-              :key="color"
-               @click="selectColor(color)"
-              class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm"
-            >
-            <button v-if="color == 'blue'" class="bg-blue-500 dark:bg-blue-400 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors">
-              {{ color }}
-            </button>
-            <button v-else-if="color == 'red'" class="bg-red-500 dark:bg-red-400 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors">
-              {{ color }}
-            </button>
-            <button v-else-if="color == 'white'" class="bg-white-500 dark:bg-gray-700 text-black px-2 py-1 rounded hover:bg-gray-200 hover:text-black transition-colors">
-              {{ color }}
-            </button>
-            <button v-else-if="color == 'green'" class="bg-green-500 dark:bg-green-400 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors">
-              {{ color }}
-            </button>
-            <button v-else-if="color == 'yellow'" class="bg-yellow-300 dark:bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500 transition-colors">
-              {{ color }}
-            </button>
-          </span>
+        <p class="font-semibold">Available Colors:</p>
+
+        <div class="flex space-x-2">
+        <span
+          v-for="color in product.colors"
+          :key="color"
+          @click="selectColor(color)"
+        >
+          <button
+            class="px-3 py-1 rounded-lg text-sm transition-colors"
+            :class="colorClasses[color] || defaultColorClass"
+          >
+            {{ color }}
+          </button>
+        </span>
+        </div> 
+
+        <!-- display selected color -->
+        <div v-if="selectedColor" class="mt-2">
+        <p class="font-semibold">
+        Selected color:
+        <span
+          class="font-medium px-2 py-1 rounded"
+          :class="colorClasses[selectedColor] || defaultColorClass"
+        >
+          {{ selectedColor }}
+        </span>
+        </p>
         </div>
-            <!-- Display selected color -->
-           <div v-if="selectedColor" class="mt-2">
-              <p class="font-semibold">
-                Selected color: <span 
-                v-if="selectedColor == 'blue'" :class="' text-blue-500 w-24 px-2 py-1 rounded hover:bg-blue-600 '"
-                class="font-medium">{{ selectedColor }}</span>
-
-               <span 
-                v-if="selectedColor == 'red'" :class="' text-red-500 w-24 px-2 py-1 rounded hover:bg-red-600 '"
-                class="font-medium">{{ selectedColor }}</span>
-
-                <span 
-                v-if="selectedColor == 'yellow'" :class="' text-yellow-300 w-24 px-2 py-1 rounded hover:bg-yellow-600 '"
-                class="font-medium">{{ selectedColor }}</span>
-
-                <span 
-                v-if="selectedColor == 'white'" :class="' text-gray-300 w-24 px-2 py-1 rounded hover:bg-gray-500 '"
-                class="font-medium">{{ selectedColor }}</span>
-
-                <span 
-                v-if="selectedColor == 'green'" :class="' text-green-500 w-24 px-2 py-1 rounded hover:bg-green-600 '"
-                class="font-medium">{{ selectedColor }}</span>
-              </p>
-          
-            </div>
         </div>
 
-        <!-- loop in product.clothingSizes and Display Sizes of clothing-->
-        <div v-if="product.clothingSizes && product.clothingSizes.length > 0" class="mt-4">
+        <!-- loop in product.size and Display Sizes-->
+        <div v-if="product.size && product.size.length > 0" class="mt-4">
           <p class="font-semibold">Available Sizes:</p>
           <div class="flex space-x-2 flex-wrap">
             <button>
-              <span class="px-3 py-1 m-1 bg-gray-400 dark:bg-gray-700 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.clothingSizes" 
+              <span class="px-3 py-1 m-1 bg-gray-400 dark:bg-gray-700 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.size" 
               :key="size"
-              @click="selectClothingSize(size)">
+              @click="selectSize(size)">
                 {{ size }}
               </span>
             </button>
@@ -293,37 +273,12 @@ const handleBuyNow = () => {
         </div>
 
          <!-- Display selected size of clothing -->
-           <div v-if="selectedClothingSize" class="mt-2">
+           <div v-if="selectedSize" class="mt-2">
               <p class="font-semibold">
                 Selected size: <span 
                 class="' text-black-500 w-24 px-2 py-1 rounded hover:bg-black-600 font-medium '"
               >
-              {{ selectedClothingSize }}
-            </span>
-              </p>
-           </div>
-
-        <!-- loop in product.shoesSizes and display Shoe Sizes (if applicable) -->
-        <div v-if="product.shoesSizes && product.shoesSizes.length > 0" class="mt-4">
-          <p class="font-semibold">Shoe Size:</p>
-          <div class="flex space-x-2 flex-wrap">
-            <button>
-              <span class="px-3 py-1 m-1 bg-gray-400 dark:bg-gray-700 rounded-lg text-sm hover:bg-gray-100" v-for="size in product.shoesSizes" 
-              :key="size"
-              @click="selectShoesSize(size)">
-                {{ size }}
-              </span>
-            </button>
-          </div>
-        </div>
-
-         <!-- Display selected size of shoes -->
-           <div v-if="selectedShoesSize" class="mt-2">
-              <p class="font-semibold">
-                Selected size: <span 
-                class="' text-black-500 w-24 px-2 py-1 rounded hover:bg-black-600 font-medium '"
-              >
-              {{ selectedShoesSize }}
+              {{ selectedSize }}
             </span>
               </p>
            </div>

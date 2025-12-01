@@ -28,16 +28,14 @@ export type Product = {
     color3: string;
     color4: string;
   };
-  clothingSize: {
+  size: {
     small: string;
     medium: string;
     large: string;
     xlarge: string;
   };
-  shoesSize: number;
   selectedColor?: string;
-  selectedClothingSize?: string;
-  selectedShoesSize?: string;
+  selectedSize?: string;
   cartItemId?: string;
 };
 
@@ -62,8 +60,7 @@ export const useCartStore = defineStore('cart', {
     selectedImage: ref(""),
     selectedShipping: ref("Standard"),
     selectedColor: ref(""), 
-    selectedClothingSize: ref(""),
-    selectedShoesSize: ref("")
+    selectedSize: ref(""),
   }),
   getters: {
     cartTotalQuantity: (state) => computed(() =>{
@@ -85,12 +82,12 @@ export const useCartStore = defineStore('cart', {
     },
 
     // Method to generate consistent cartItemId
-    generateCartItemId(productId: string, options: { color?: string; clothingSize?: string; shoesSize?: string } = {}) {
-      return `${productId}-${options.color || 'default'}-${options.clothingSize || 'default'}-${options.shoesSize || 'default'}`;
+    generateCartItemId(productId: string, options: { color?: string; size?: string} = {}) {
+      return `${productId}-${options.color || 'default'}-${options.size || 'default'}`;
     },
 
     // Method to check if a product with specific options is already in cart
-    isProductInCart(productId: string, options: { color?: string; clothingSize?: string; shoesSize?: string } = {}) {
+    isProductInCart(productId: string, options: { color?: string; size?: string } = {}) {
       if (!this.cart || this.cart.length === 0) {
         return false;
       }
@@ -183,25 +180,13 @@ getEstimatedDeliveryDate() {
     
     this.updateLocalStorage();
   },
-    // Set selected clothing size 
+    // Set selected size 
 
-  setSelectedClothingSize(size: string) {
-    this.selectedClothingSize = size;
-
-    if (import.meta.client) {
-      localStorage.setItem('selectedClothingSize', size);
-    }
-    
-    this.updateLocalStorage();
-  },
-
-  // set shoes size
-
-  setSelectedShoesSize(size: string) {
-    this.selectedShoesSize = size;
+  setSelectedSize(size: string) {
+    this.selectedSize = size;
 
     if (import.meta.client) {
-      localStorage.setItem('selectedShoesSize', size);
+      localStorage.setItem('selectedSize', size);
     }
     
     this.updateLocalStorage();
@@ -216,17 +201,14 @@ getEstimatedDeliveryDate() {
   const storedImage = localStorage.getItem('selectedImage');
   const storedShipping = localStorage.getItem('selectedShipping');
   const storedColor = localStorage.getItem('selectedColor');
-  const storedClothingSize = localStorage.getItem('selectedClothingSize');
-  const storedShoesSize = localStorage.getItem('selectedShoesSize');
-
+  const storedSize = localStorage.getItem('selectedSize');
 
   this.cart = storedCart ? JSON.parse(storedCart) : [];
   this.selectedCurrency = storedCurrency ? storedCurrency : "RWF";  
   this.selectedImage = storedImage ? storedImage : "";
   this.selectedShipping = storedShipping ? storedShipping :  "Standard";
   this.selectedColor = storedColor ? storedColor : ""; 
-  this.selectedClothingSize = storedClothingSize ? storedClothingSize : "";
-  this.selectedShoesSize = storedShoesSize ? storedShoesSize : "";
+  this.selectedSize = storedSize ? storedSize : "";
 
   this.updateLocalStorage();
 
@@ -242,14 +224,13 @@ getEstimatedDeliveryDate() {
       localStorage.setItem('selectedImage', this.selectedImage);
       localStorage.setItem('selectedShipping', this.selectedShipping);
       localStorage.setItem('selectedColor', this.selectedColor);
-      localStorage.setItem('selectedClothingSize', this.selectedClothingSize);
-      localStorage.setItem('selectedShoesSize', this.selectedShoesSize);
+      localStorage.setItem('selectedSize', this.selectedSize);
     }
   },
 
     addToCart(
       product: Product,
-      selectedOptions: { color?: string; clothingSize?: string; shoesSize?: string } = {}
+      selectedOptions: { color?: string; size?: string } = {}
     ) {
       if (!product) return;
 
@@ -266,8 +247,7 @@ getEstimatedDeliveryDate() {
           ...product, 
           quantity: 1, 
           selectedColor: selectedOptions.color || '',
-          selectedClothingSize: selectedOptions.clothingSize || '',
-          selectedShoesSize: selectedOptions.shoesSize || '',
+          selectedSize: selectedOptions.size || '',
           cartItemId: cartItemId // Unique identifier for this cart item
         });
       }
