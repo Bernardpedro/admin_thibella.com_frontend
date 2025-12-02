@@ -108,7 +108,7 @@
 
           <!-- User Account -->
           <NuxtLink 
-            to="/account"
+            to="/login"
             class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800  transition-colors hidden sm:block"
             aria-label="User Account"
           >
