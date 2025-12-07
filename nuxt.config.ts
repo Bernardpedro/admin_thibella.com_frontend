@@ -1,5 +1,7 @@
 export default defineNuxtConfig(
-  {
+  {  nitro: {
+    preset: 'static'
+  },
     
     runtimeConfig: {
       public: {
@@ -20,7 +22,7 @@ export default defineNuxtConfig(
 
     app: {
       head: {
-        title: 'My Nuxt 3 App',
+        title: 'thibella.com',
         meta: [{ name: 'description', content: 'A Nuxt 3 project using Options API' }],
       },
     },

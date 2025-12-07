@@ -198,9 +198,12 @@ import { useCartStore } from '~/stores/cart'
 import { useSearchStore } from '~/stores/search'
 import { useRouter } from 'vue-router'
 
+
+// USE THE COMPOSABLE!
+const { isDark, initDarkMode, toggleDarkMode } = useDarkMode()
+
 // State
 const mobileMenuOpen = ref(false)
-const isDark = ref(false)
 const currentLanguage = ref('rw')
 const router = useRouter()
 const searchStore = useSearchStore()
@@ -213,6 +216,10 @@ const cartCount = computed(() => cartStore.cartTotalQuantity.value)
 
 // Set initial currency based on default language
 onMounted(() => {
+ 
+  //initialise the dark mode
+  initDarkMode()
+  
   // Trigger the language change to set initial currency
   currentLanguage.value = currentLanguage.value
 })
@@ -222,14 +229,15 @@ const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
 }
 
-const toggleDarkMode = () => {
-  isDark.value = !isDark.value
-  if (isDark.value) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
-}
+
+// const toggleDarkMode = () => {
+//   isDark.value = !isDark.value
+//   if (isDark.value) {
+//     document.documentElement.classList.add('dark')
+//   } else {
+//     document.documentElement.classList.remove('dark')
+//   }
+// }
 
 const performSearch = (query) => {
   searchQuery.value = query
