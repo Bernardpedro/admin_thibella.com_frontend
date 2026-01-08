@@ -145,9 +145,9 @@
               @change="changeLanguage"
               class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              <option value="en">English</option>
-              <option value="rw">Kinyarwanda</option>
-              <option value="fr">Français</option>
+            <option value="en">🇺🇸 </option>
+            <option value="rw">🇷🇼 </option>
+            <option value="fr">🇫🇷 </option>
             </select>
           </div>
 
@@ -164,12 +164,12 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useCartStore } from '~/stores/cart'
+// import { useCartStore } from '~/stores/cart'
 
 const email = ref('')
 const selectedLanguage = ref('rw') // Default to Kinyarwanda
 const currentYear = computed(() => new Date().getFullYear())
-const cartStore = useCartStore()
+// const cartStore = useCartStore()
 
 // Set initial language and currency
 onMounted(() => {
@@ -187,13 +187,13 @@ const changeLanguage = () => {
   // Update currency based on selected language
   switch(selectedLanguage.value) {
     case 'en':
-      cartStore.setCurrency('USD')
+      // cartStore.setCurrency('USD')
       break
     case 'rw':
-      cartStore.setCurrency('RWF')
+      // cartStore.setCurrency('RWF')
       break
     case 'fr':
-      cartStore.setCurrency('EUR')
+      // cartStore.setCurrency('EUR')
       break
   }
   console.log('Language changed to:', selectedLanguage.value)

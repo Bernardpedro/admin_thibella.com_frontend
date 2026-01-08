@@ -9,11 +9,11 @@
 
 <script setup>
 import { onMounted } from 'vue';
-import { useCartStore } from '~/stores/cart';
+// import { useCartStore } from '~/stores/cart';
 
-const cartStore = useCartStore();
+// const cartStore = useCartStore();
 
 onMounted(() => {
-  cartStore.loadCart();
+  // cartStore.loadCart();
 });
 </script>

@@ -1,13 +1,13 @@
 <template>
   <div :class="{ dark: isDarkMode }" class="bg-white dark:bg-gray-900">
     <div class="bg-white dark:bg-gray-900">
-      <ProductsList/>
+      <!-- <ProductsList/> -->
     </div>
   </div>
 </template>
 
 <script setup>
-import ProductsList from '~/components/ProductsList.vue';
+// import ProductsList from '~/components/ProductsList.vue';
 
 definePageMeta({
   layout:'default'

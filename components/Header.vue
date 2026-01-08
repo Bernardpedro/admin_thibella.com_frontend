@@ -1,12 +1,10 @@
 <template>
   <header class="bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50 transition-colors duration-300">
-
-    <!-- Main Header -->
-    <div class="container mx-auto px-4 py-4">
-      <div class="flex items-center justify-between gap-6">
+    <div class="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+      <div class="flex items-center justify-between gap-4 sm:gap-6">
         <!-- Logo -->
         <NuxtLink to="/" class="flex-shrink-0">
-          <svg viewBox="0 0 500 110" xmlns="http://www.w3.org/2000/svg" class="h-16 w-auto">
+          <svg viewBox="0 0 500 110" xmlns="http://www.w3.org/2000/svg" class="h-12 sm:h-16 w-auto">
             <!-- Elegant leaf/botanical design -->
             <g id="icon">
               <!-- Main leaves in vibrant green -->
@@ -46,13 +44,13 @@
             <circle cx="405" cy="105" r="2" fill="#34D399" opacity="0.7"/>
           </svg>
         </NuxtLink>
-       <!-- Navigation Menu (Desktop) -->
-        <nav class="hidden lg:flex items-center gap-6">
+        <!-- Navigation Menu (Desktop) -->
+        <nav class="hidden lg:flex items-center gap-4 xl:gap-6">
           <NuxtLink 
             v-for="item in menuItems" 
             :key="item.path"
             :to="item.path"
-            class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+            class="text-sm sm:text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             {{ item.label }}
           </NuxtLink>
@@ -78,38 +76,38 @@
         </div>
 
         <!-- Right Actions -->
-        <div class="flex items-center gap-4">
-
-          <select
-            v-model="currentLanguage"
-            class="bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-gray-700 dark:text-gray-300 cursor-pointer"
-            style="font-family: system-ui, 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;"
-          >
-            <option value="en">🇺🇸 English</option>
-            <option value="rw">🇷🇼 Kinyarwanda</option>
-            <option value="fr">🇫🇷 Français</option>
-          </select>
-
+        <div class="flex items-center gap-2 sm:gap-4">
+          <div class="hidden sm:block">
+            <select
+              v-model="currentLanguage"
+              class="bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm sm:text-base text-gray-700 dark:text-gray-300 cursor-pointer"
+              style="font-family: system-ui, 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;"
+            >
+              <option value="en">🇺🇸 EN</option>
+              <option value="rw">🇷🇼 RW</option>
+              <option value="fr">🇫🇷 FR</option>
+            </select>
+          </div>
 
           <!-- Cart -->
-          <NuxtLink 
+          <!-- <NuxtLink 
             to="/cart"
-            class="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            class="relative p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
             aria-label="Shopping cart"
           >
-            <span class="text-2xl">🛒</span>
+            <span class="text-xl sm:text-2xl">🛒</span>
             <span 
               v-if="cartCount > 0"
-              class="absolute -top-1 -right-1 bg-green-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+              class="absolute -top-1 -right-1 bg-green-600 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center"
             >
               {{ cartCount }}
             </span>
-          </NuxtLink>
+          </NuxtLink> -->
 
           <!-- User Account -->
           <NuxtLink 
             to="/login"
-            class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800  transition-colors hidden sm:block"
+            class="flex items-center gap-2 p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800  transition-colors hidden sm:block"
             aria-label="User Account"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-700 dark:text-gray-300">
@@ -122,7 +120,7 @@
           <!-- Dark Mode Toggle -->
           <button 
             @click="toggleDarkMode"
-            class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
+            class="p-1.5 sm:p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-300"
             aria-label="Toggle dark mode"
           >
             <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -142,17 +140,18 @@
           </button>
           <!-- Mobile Menu Toggle -->
           <button 
-            @click="toggleMobileMenu"
-            class="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-            aria-label="Toggle menu"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+            class="lg:hidden p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+            :aria-expanded="mobileMenuOpen"
+            :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
           >
-            <span class="text-2xl">☰</span>
+            <span class="text-2xl text-green-600">{{ mobileMenuOpen ? '✕' : '☰' }}</span>
           </button>
         </div>
       </div>
 
       <!-- Mobile Search Bar -->
-      <div class="md:hidden mt-4">
+      <div class="md:hidden mt-3">
         <div class="relative">
           <input 
             type="text"
@@ -171,36 +170,70 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div 
-      v-show="mobileMenuOpen"
-      class="lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700"
+    <transition
+      enter-active-class="transition-all duration-300 ease-out"
+      leave-active-class="transition-all duration-200 ease-in"
+      enter-from-class="opacity-0 max-h-0"
+      enter-to-class="opacity-100 max-h-screen"
+      leave-from-class="opacity-100 max-h-screen"
+      leave-to-class="opacity-0 max-h-0"
     >
-      <nav class="container mx-auto px-4 py-4 flex flex-col gap-3">
-        
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-2">
+      <div 
+        v-show="mobileMenuOpen"
+        class="lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 overflow-hidden"
+      >
+        <nav class="container mx-auto px-4 py-3 flex flex-col">
+          <!-- Mobile Navigation Links -->
+          <template v-for="(item, index) in menuItems" :key="'mobile-' + item.path">
+            <NuxtLink 
+              :to="item.path"
+              @click="mobileMenuOpen = false"
+              class="py-3 px-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+            >
+              {{ item.label }}
+            </NuxtLink>
+            <div v-if="index < menuItems.length - 1" class="border-b border-gray-100 dark:border-gray-800 my-1"></div>
+          </template>
+          
+          <!-- Mobile Language Selector -->
+          <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <select
+              v-model="currentLanguage"
+              class="w-full p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300"
+              @change="mobileMenuOpen = false"
+            >
+              <option value="en">🇺🇸 English</option>
+              <option value="rw">🇷🇼 Kinyarwanda</option>
+              <option value="fr">🇫🇷 Français</option>
+            </select>
+          </div>
+          
+          <!-- Mobile Account Link -->
           <NuxtLink 
-            to="/account"
+            to="/login"
             @click="mobileMenuOpen = false"
-            class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 py-2"
+            class="mt-3 py-3 px-2 flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
           >
-            <span>👤</span>
-            <span>My Account</span>
+           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-700 dark:text-gray-300">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Sign in</span>
           </NuxtLink>
-        </div>
-      </nav>
-    </div>
+        </nav>
+      </div>
+    </transition>
   </header>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useCartStore } from '~/stores/cart'
 import { useSearchStore } from '~/stores/search'
 import { useRouter } from 'vue-router'
 
 
 // USE THE COMPOSABLE!
-const { isDark, initDarkMode, toggleDarkMode } = useDarkMode()
+const { isDark, toggleDarkMode } = useDarkMode()
 
 // State
 const mobileMenuOpen = ref(false)
@@ -208,36 +241,32 @@ const currentLanguage = ref('rw')
 const router = useRouter()
 const searchStore = useSearchStore()
 const searchQuery = ref(searchStore.query)
-const wishlistCount = ref(5)
+const menuItems = ref([
+  {
+    label: 'Products',
+    path: '/products'
+  },
+  {
+    label: 'Orders',
+    path: '/orders'
+  },
+  {
+    label: 'Customers',
+    path: '/Customers'
+  }
+])
 
 // Cart Store
-const cartStore = useCartStore()
+// const cartStore = useCartStore()
 const cartCount = computed(() => cartStore.cartTotalQuantity.value)
 
 // Set initial currency based on default language
-onMounted(() => {
- 
-  //initialise the dark mode
-  initDarkMode()
-  
+onMounted(() => { 
   // Trigger the language change to set initial currency
   currentLanguage.value = currentLanguage.value
 })
 
-// Methods
-const toggleMobileMenu = () => {
-  mobileMenuOpen.value = !mobileMenuOpen.value
-}
 
-
-// const toggleDarkMode = () => {
-//   isDark.value = !isDark.value
-//   if (isDark.value) {
-//     document.documentElement.classList.add('dark')
-//   } else {
-//     document.documentElement.classList.remove('dark')
-//   }
-// }
 
 const performSearch = (query) => {
   searchQuery.value = query
@@ -248,16 +277,6 @@ const performSearch = (query) => {
   }
 }
 
-// Initialize dark mode from localStorage or system preference
-if (process.client) {
-  const savedTheme = localStorage.getItem('theme')
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  
-  if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-    isDark.value = true
-    document.documentElement.classList.add('dark')
-  }
-}
 
 // Watch language changes and update currency accordingly
 watch(currentLanguage, (newLang) => {
