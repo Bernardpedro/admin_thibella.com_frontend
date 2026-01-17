@@ -13,13 +13,13 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
           <input
-            v-model="formData.fullName"
+            v-model="formData.name"
             type="text"
             required
             class="w-full px-4 py-3 border border-green-300 dark:border-green-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             placeholder="John Doe"
           />
-          <p v-if="errors.fullName" class="text-red-500 dark:text-red-400 text-xs mt-1">{{ errors.fullName }}</p>
+          <p v-if="errors.name" class="text-red-500 dark:text-red-400 text-xs mt-1">{{ errors.name }}</p>
         </div>
 
         <!-- Email -->
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Confirm Password -->
-        <div>
+        <!-- <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
           <div class="relative">
             <input
@@ -90,7 +90,7 @@
             </button>
           </div>
           <p v-if="errors.confirmPassword" class="text-red-500 text-xs mt-1">{{ errors.confirmPassword }}</p>
-        </div>
+        </div> -->
 
         <!-- Terms & Conditions -->
         <div class="flex items-start">
@@ -167,26 +167,29 @@
 <script setup>
 import { ref, reactive } from 'vue'
 
+const loading = ref(false)
+const errorMessage = ref('')
+
 const formData = reactive({
-  fullName: '',
+  name: '',
   email: '',
   phone: '',
   password: '',
-  confirmPassword: '',
+  // confirmPassword: '',
   agreeToTerms: false
-})
+});
 
 const errors = reactive({
-  fullName: '',
+  name: '',
   email: '',
   phone: '',
   password: '',
-  confirmPassword: '',
+  // confirmPassword: '',
   agreeToTerms: ''
-})
+});
 
 const showPassword = ref(false)
-const showConfirmPassword = ref(false)
+// const showConfirmPassword = ref(false)
 const showSuccess = ref(false)
 
 const validateEmail = (email) => {
@@ -211,13 +214,13 @@ const clearErrors = () => {
   Object.keys(errors).forEach(key => errors[key] = '')
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   clearErrors()
   let isValid = true
 
   // Validate Full Name
-  if (formData.fullName.trim().length < 2) {
-    errors.fullName = 'Please enter your full name'
+  if (formData.name.trim().length < 2) {
+    errors.name = 'Please enter your full name'
     isValid = false
   }
 
@@ -240,10 +243,10 @@ const handleSubmit = () => {
   }
 
   // Validate Confirm Password
-  if (formData.password !== formData.confirmPassword) {
-    errors.confirmPassword = 'Passwords do not match'
-    isValid = false
-  }
+  // if (formData.password !== formData.confirmPassword) {
+  //   errors.confirmPassword = 'Passwords do not match'
+  //   isValid = false
+  // }
 
   // Validate Terms
   if (!formData.agreeToTerms) {
@@ -255,17 +258,117 @@ const handleSubmit = () => {
     console.log('Form submitted:', formData)
     showSuccess.value = true
     
-    // In a real Nuxt 3 app, you would call your API here:
-    // await $fetch('/api/auth/register', {
-    //   method: 'POST',
-    //   body: formData
-    // })
+  try {
+
+    const res = await $fetch('http://localhost/thibellaApi/auth/register.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: formData
+    })
+
+    console.log('Register response:', res)
+
+    if (res.success) {
+
+      alert(res.message);
+
+      navigateTo('/auth/login');
+
+    } else {
+       errorMessage.value = res.message || 'Registration failed.'
+    }
+  } catch (error) {
+    console.error('Registration error:', error)
+
+      // Debugging details
+  if (error?.data) {
+    console.error('Backend error data:', error.data)
+    errorMessage.value = error.data.message || 'Server error occurred.'
+  } else if (error?.status) {
+    console.error('HTTP Status:', error.status)
+    errorMessage.value = `Request failed (status ${error.status})`
+  } else {
+    errorMessage.value = 'Network error. Please check your connection.'
+  }
+
+  } finally {
+    loading.value = false
+  }
     
     setTimeout(() => {
       showSuccess.value = false
     }, 3000)
   }
 }
+
+
+// const handleSubmit = async () => {
+//   // Clear previous messages
+//   clearErrors()
+
+//   // Validate passwords match
+//   if (formData.value.password !== confirmPassword.value) {
+//     errorMessage.value = 'Passwords do not match!'
+//     return
+//   }
+
+//   // Validate password length
+//   if (formData.value.password.length < 6) {
+//     errorMessage.value = 'Password must be at least 6 characters long'
+//     return
+//   }
+
+//   // Validate terms accepted
+//   if (!acceptTerms.value) {
+//     errorMessage.value = 'Please accept the Terms and Conditions'
+//     return
+//   }
+
+//   // Validate username
+//   if (formData.value.name.length < 4) {
+//     errorMessage.value = 'Username must be at least 4 characters long'
+//     return
+//   }
+
+//   loading.value = true
+
+//   try {
+//     // Prepare registration data
+//     const registrationData = {
+//       name: formData.value.name,
+//       email: formData.value.email,
+//       password: formData.value.password,
+//     }
+
+
+//     const res = await $fetch('https://api.stjosephtssnzuki.com/public/auth/register.php', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify(registrationData)
+//     })
+
+//     if (res.success) {
+
+//       alert(res.message);
+
+//       navigateTo('/auth/login');
+
+//     } else {
+//       // Registration failed
+//       errorMessage.value = data.error || 'Registration failed. Please try again.'
+//     }
+//   } catch (error) {
+//     console.error('Registration error:', error)
+
+//   } finally {
+//     loading.value = false
+//   }
+// }
+
 
 const handleSocialLogin = (provider) => {
   console.log(`Login with ${provider}`)

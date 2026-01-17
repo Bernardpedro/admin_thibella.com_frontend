@@ -283,34 +283,13 @@
             </div>
 
             <div>
-              <label class="block text-gray-700 font-medium mb-2">Product Type *</label>
-              <select 
-                v-model="newProduct.type"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="" disabled>Select type</option>
-                <option value="workshop">Apparel & Fashion</option>
-                <option value="retail">Electronics</option>
-                <option value="wholesale">Home & Living</option>
-                <option value="wholesale">Food & Beverages</option>
-                <option value="wholesale">Beauty & Personal Care</option>
-                <option value="wholesale">Toys & Baby Products</option>
-                <option value="wholesale">Automotive</option>
-              </select>
+              <label class="block text-gray-700 font-medium mb-2" required>Product Type *</label>
+               <input type="text" v-model="newProduct.type" placeholder="Enter product type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"/>
             </div>
 
             <div>
               <label class="block text-gray-700 font-medium mb-2">Category *</label>
-              <select 
-                v-model="newProduct.category"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select category</option>
-                <option value="clothing">Clothing</option>
-                <option value="accessories">Accessories</option>
-                <option value="footwear">Footwear</option>
-                <option value="electronics">Electronics</option>
-              </select>
+                <input type="text" v-model="newProduct.category" placeholder="Enter category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"/>
             </div>
 
             <div class="md:col-span-2">
@@ -498,41 +477,7 @@ watch(sizeInput, (newValue) => {
     sizeInput.value = '';
   }
 });
-
-// Handle image upload
-const handleImage = (event) => {
-  const files = Array.from(event.target.files);
-  newImages.value.push(...files);
   
-  const newPreviews = files.map(file => URL.createObjectURL(file));
-  imagesPreviewUrls.value.push(...newPreviews);
-};
-
-// Remove preview image
-const removePreviewImage = (index) => {
-  const removedUrl = imagesPreviewUrls.value[index];
-  
-  // Check if it's the main image
-  if (removedUrl === existingImageUrl.value) {
-    existingImageUrl.value = '';
-  }
-  
-  // Check if it's in possible images
-  const existingPossibleIndex = existingPossibleImagesUrls.value.indexOf(removedUrl);
-  if (existingPossibleIndex !== -1) {
-    existingPossibleImagesUrls.value.splice(existingPossibleIndex, 1);
-  }
-  
-  // Check if it's a new image
-  const newIndex = newImages.value.findIndex(
-    file => URL.createObjectURL(file) === removedUrl
-  );
-  if (newIndex !== -1) {
-    newImages.value.splice(newIndex, 1);
-  }
-  
-  imagesPreviewUrls.value.splice(index, 1);
-};
 
 // Remove color
 const removeColor = (index) => {
@@ -581,13 +526,10 @@ const createProduct = async () => {
     formData.append('type', newProduct.value.type);
     formData.append('isOnSale', newProduct.value.isOnSale ? '1' : '0');
     formData.append('category', newProduct.value.category);
+    formData.append('imageUrl', newProduct.value.imageUrl);
+    formData.append('possibleImagesUrls', JSON.stringify(newProduct.value.possibleImagesUrls));
 
-    // Add product images
-    newImages.value.forEach(file => {
-      formData.append('productImages[]', file);
-    });
-
-    const res = await $fetch('https://api.stjosephtssnzuki.com/public/products/add-product.php', {
+    const res = await $fetch('http://localhost/thibellaApi/public/products/add-product.php', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${tokens}`,
@@ -605,6 +547,34 @@ const createProduct = async () => {
   } catch (error) {
     console.error('Create product error:', error);
     alert('Failed to create product');
+  }
+};
+
+// Fetch products
+const fetchProducts = async () => {
+  const tokens = localStorage.getItem('token');
+
+  try {
+    const res = await $fetch('http://localhost/thibellaApi/public/products/get-products.php', {
+      headers: {
+        Authorization: `Bearer ${tokens}`
+      }
+    });
+    
+    // Parse JSON fields if they come as strings
+    uploadedProducts.value = res.map(product => ({
+      ...product,
+      color: typeof product.color === 'string' ? JSON.parse(product.color) : product.color,
+      size: typeof product.size === 'string' ? JSON.parse(product.size) : product.size,
+      possibleImagesUrls: typeof product.possibleImagesUrls === 'string' 
+        ? JSON.parse(product.possibleImagesUrls) 
+        : product.possibleImagesUrls
+    }));
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    alert('Failed to fetch products. Please try again later.');
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -710,33 +680,6 @@ const submitUpdateProduct = async () => {
   }
 };
 
-// Fetch products
-const fetchProducts = async () => {
-  const tokens = localStorage.getItem('token');
-
-  try {
-    const res = await $fetch('http://127.0.0.1:3658/m1/1155406-1148305-default/F/products', {
-      headers: {
-        Authorization: `Bearer ${tokens}`
-      }
-    });
-    
-    // Parse JSON fields if they come as strings
-    uploadedProducts.value = res.map(product => ({
-      ...product,
-      color: typeof product.color === 'string' ? JSON.parse(product.color) : product.color,
-      size: typeof product.size === 'string' ? JSON.parse(product.size) : product.size,
-      possibleImagesUrls: typeof product.possibleImagesUrls === 'string' 
-        ? JSON.parse(product.possibleImagesUrls) 
-        : product.possibleImagesUrls
-    }));
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    alert('Failed to fetch products. Please try again later.');
-  } finally {
-    isLoading.value = false;
-  }
-};
 
 // Delete product
 const deleteProduct = async (productId) => {
