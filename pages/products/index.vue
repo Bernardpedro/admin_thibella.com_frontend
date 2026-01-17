@@ -365,6 +365,7 @@
             Cancel
           </button>
           <button 
+            :disabled="isLoading"
             @click="editingProduct ? submitUpdateProduct() : createProduct()"
             class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-600 hover:from-green-700 hover:to-green-700 text-white rounded-lg font-medium transition-all flex items-center gap-2"
           >
@@ -537,6 +538,8 @@ const createProduct = async () => {
       body: formData
     });
 
+    console.log('Create product response:', res);
+
     if (res.success) {
       alert(res.message || 'Product created successfully!');
       closeModal();
@@ -561,15 +564,8 @@ const fetchProducts = async () => {
       }
     });
     
-    // Parse JSON fields if they come as strings
-    uploadedProducts.value = res.map(product => ({
-      ...product,
-      color: typeof product.color === 'string' ? JSON.parse(product.color) : product.color,
-      size: typeof product.size === 'string' ? JSON.parse(product.size) : product.size,
-      possibleImagesUrls: typeof product.possibleImagesUrls === 'string' 
-        ? JSON.parse(product.possibleImagesUrls) 
-        : product.possibleImagesUrls
-    }));
+    console.log('Fetched products:', res.data);
+    uploadedProducts.value = res.data || [];
   } catch (error) {
     console.error('Error fetching products:', error);
     alert('Failed to fetch products. Please try again later.');
@@ -595,14 +591,6 @@ const openUpdateForm = (product) => {
     imageUrl: product.imageUrl || '',
     possibleImagesUrls: Array.isArray(product.possibleImagesUrls) ? [...product.possibleImagesUrls] : []
   };
-
-  existingImageUrl.value = product.imageUrl || '';
-  existingPossibleImagesUrls.value = Array.isArray(product.possibleImagesUrls) 
-    ? product.possibleImagesUrls.map(img => `https://api.stjosephtssnzuki.com/${img}`)
-    : [];
-
-  imagesPreviewUrls.value = [existingImageUrl.value, ...existingPossibleImagesUrls.value].filter(Boolean);
-  newImages.value = [];
 
   showUploadModal.value = true;
 };
@@ -643,21 +631,11 @@ const submitUpdateProduct = async () => {
     formData.append('type', newProduct.value.type);
     formData.append('isOnSale', newProduct.value.isOnSale ? '1' : '0');
     formData.append('category', newProduct.value.category);
-
-    // Add new images
-    newImages.value.forEach(file => {
-      formData.append('productImages[]', file);
-    });
-
-    // Add existing images
-    if (existingImageUrl.value) {
-      formData.append('existingImageUrl', existingImageUrl.value);
-    }
-    
-    formData.append('existingPossibleImagesUrls', JSON.stringify(existingPossibleImagesUrls.value));
+    formData.append('imageUrl', newProduct.value.imageUrl);
+    formData.append('possibleImagesUrls', JSON.stringify(newProduct.value.possibleImagesUrls));
 
     const res = await $fetch(
-      'https://api.stjosephtssnzuki.com/public/products/update-product.php',
+      'http://localhost/thibellaApi/public/products/update-product.php',
       {
         method: 'POST',
         headers: {
@@ -668,7 +646,7 @@ const submitUpdateProduct = async () => {
     );
 
     if (res.success) {
-      alert(res.message || 'Product updated successfully!');
+      alert(res.message);
       closeModal();
       fetchProducts();
     } else {
@@ -704,7 +682,7 @@ const deleteProduct = async (productId) => {
     formData.append('id', productId);
 
     const res = await $fetch(
-      'https://api.stjosephtssnzuki.com/public/products/delete-product.php',
+      'http://localhost/thibellaApi/public/products/delete-product.php',
       {
         method: 'POST',
         headers: {
@@ -715,7 +693,7 @@ const deleteProduct = async (productId) => {
     );
 
     if (res.success) {
-      alert(res.message || 'Product deleted successfully');
+      alert(res.message);
       await fetchProducts();
     } else {
       alert(res.message || 'Delete failed');

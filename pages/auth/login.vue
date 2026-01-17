@@ -180,8 +180,6 @@ const errorMessage = ref('')
 // Handle login
 const handleLogin = async () => {
 
-  console.log('Form Data:', formData.value);
-
   isLoading.value = true
 
   try {
