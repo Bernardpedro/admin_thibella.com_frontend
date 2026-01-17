@@ -4,7 +4,7 @@
     <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-4 rounded-lg shadow-lg">
         <div class="flex items-center">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
           <span class="ml-3">Processing...</span>
         </div>
       </div>
@@ -14,7 +14,7 @@
     <div class="flex justify-end">
       <button 
         @click="showUploadModal = true"
-        class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+        class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-600 hover:from-green-700 hover:to-green-700 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -31,7 +31,7 @@
           <!-- Product Image -->
           <div class="h-48 overflow-hidden bg-gray-100 relative">
             <img 
-              :src="`${product.image}`"
+              :src="product.imageUrl"
               :alt="product.productName"
               class="w-full h-full object-cover"
               @error="handleImageError"
@@ -82,11 +82,6 @@
                   </span>
                 </div>
               </div>
-              
-              <div class="flex items-center justify-between pt-2">
-                <span class="text-xs text-gray-400">{{ formatDate(product.date) }}</span>
-                <span class="text-xs text-gray-400">{{ product.image }}</span>
-              </div>
             </div>
             
             <!-- Action Buttons -->
@@ -132,7 +127,7 @@
     >
       <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
-          <h3 class="text-2xl font-bold text-gray-900">
+          <h3 class="text-2xl font-bold text-green-600">
             {{ editingProduct ? 'Edit Product' : 'Add New Product' }}
           </h3>
           <button 
@@ -146,55 +141,119 @@
         </div>
 
         <div class="p-6 space-y-6">
-          <!-- Image Upload Section -->
-          <div>
-            <label class="block text-gray-700 font-medium mb-3">Product Images</label>
-            
-            <!-- Image Upload Area -->
-            <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors cursor-pointer bg-gray-50">
+
+          <!-- Form Fields 1 -->
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 font-medium mb-2">
+              URLs of Image for a Product (paste one and press Enter)
+            </label>
+
+            <div class="flex gap-2">
               <input
-                type="file"
-                accept="image/*"
-                multiple
-                @change="handleImage"
-                class="hidden"
-                id="file-upload"
+                v-model="imageInput"
+                type="text"
+                placeholder="https://example.com/image.jpg"
+                @keydown.enter.prevent="addImage"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg
+                      focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <label for="file-upload" class="cursor-pointer">
-                <div v-if="imagesPreviewUrls.length === 0">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p class="mt-2 text-sm text-gray-600">
-                    <span class="font-medium text-blue-600 hover:text-blue-500">Click to upload</span> or drag and drop
-                  </p>
-                  <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
-                </div>
-                <div v-else>
-                  <p class="text-sm text-gray-600 mb-4">{{ imagesPreviewUrls.length }} image(s) selected</p>
-                  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div v-for="(url, index) in imagesPreviewUrls" :key="index" class="relative group">
-                      <img :src="url" alt="Preview" class="h-24 w-full object-cover rounded-lg" />
-                      <button 
-                        @click.prevent="removePreviewImage(index)"
-                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  <p class="mt-4 text-sm text-blue-600 font-medium">Add more images</p>
-                </div>
-              </label>
+
+              <button
+                type="button"
+                @click="addImage"
+                class="px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                Add
+              </button>
+            </div>
+
+            <!-- Image URL chips -->
+            <div v-if="newProduct.imageUrl.trim() !== ''" class="mt-3 flex flex-wrap gap-2">
+              <span
+                class="px-3 py-1 bg-purple-100 text-green-800 rounded-full text-sm flex items-center gap-2"
+              >
+                Image {{ 1 }}
+                <button
+                  type="button"
+                  @click="removeImage()"
+                  class="text-green-600 hover:text-green-800"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+
+            <!-- Image preview -->
+            <div v-if="newProduct.imageUrl.trim() !== ''" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <img
+                :src="newProduct.imageUrl"
+                alt="Product image urls"
+                class="w-full h-32 object-cover rounded-lg border"
+              />
             </div>
           </div>
 
-          <!-- Form Fields -->
+          <!-- Form Fields 2 -->
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 font-medium mb-2">
+              URLs of Possible Images for a Product (paste one and press Enter)
+            </label>
+
+            <div class="flex gap-2">
+              <input
+                v-model="possibleImagesInput"
+                type="text"
+                placeholder="https://example.com/image.jpg"
+                @keydown.enter.prevent="addPossibleImages"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg
+                      focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+
+              <button
+                type="button"
+                @click="addPossibleImages"
+                class="px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                Add
+              </button>
+            </div>
+
+            <!-- Image URL chips -->
+            <div v-if="newProduct.possibleImagesUrls.length > 0" class="mt-3 flex flex-wrap gap-2">
+              <span
+                v-for="(img, index) in newProduct.possibleImagesUrls"
+                :key="index"
+                class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm flex items-center gap-2"
+              >
+                Image {{ index + 1 }}
+                <button
+                  type="button"
+                  @click="removePossibleImages(index)"
+                  class="text-purple-600 hover:text-purple-800"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+
+            <!-- Image preview -->
+            <div v-if="newProduct.possibleImagesUrls.length > 0" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <img
+                v-for="(img, index) in newProduct.possibleImagesUrls"
+                :key="'preview-' + index"
+                :src="img"
+                alt="Product image urls"
+                class="w-full h-32 object-cover rounded-lg border"
+              />
+            </div>
+          </div>
+
+
+
+          <!-- Form Fields 3 -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
-              <label class="block text-gray-700 font-medium mb-2">Product Name *</label>
+              <label class="block text-gray-700 font-medium mb-2">Product Name</label>
               <input 
                 v-model="newProduct.productName"
                 type="text" 
@@ -214,34 +273,6 @@
             </div>
 
             <div>
-              <label class="block text-gray-700 font-medium mb-2">Date *</label>
-              <input 
-                v-model="newProduct.date"
-                type="date"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label class="block text-gray-700 font-medium mb-2">Time</label>
-              <input 
-                v-model="newProduct.images"
-                type="time"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label class="block text-gray-700 font-medium mb-2">Possible Images</label>
-              <input 
-                v-model="newProduct.possibleImages"
-                type="text"
-                placeholder="Enter possible images info"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
               <label class="block text-gray-700 font-medium mb-2">Price (in cents) *</label>
               <input 
                 v-model="newProduct.priceCents"
@@ -252,20 +283,24 @@
             </div>
 
             <div>
-              <label class="block text-gray-700 font-medium mb-2">Product Type</label>
+              <label class="block text-gray-700 font-medium mb-2">Product Type *</label>
               <select 
                 v-model="newProduct.type"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">Select type</option>
-                <option value="workshop">Workshop</option>
-                <option value="retail">Retail</option>
-                <option value="wholesale">Wholesale</option>
+                <option value="" disabled>Select type</option>
+                <option value="workshop">Apparel & Fashion</option>
+                <option value="retail">Electronics</option>
+                <option value="wholesale">Home & Living</option>
+                <option value="wholesale">Food & Beverages</option>
+                <option value="wholesale">Beauty & Personal Care</option>
+                <option value="wholesale">Toys & Baby Products</option>
+                <option value="wholesale">Automotive</option>
               </select>
             </div>
 
             <div>
-              <label class="block text-gray-700 font-medium mb-2">Category</label>
+              <label class="block text-gray-700 font-medium mb-2">Category *</label>
               <select 
                 v-model="newProduct.category"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -352,11 +387,13 @@
           </button>
           <button 
             @click="editingProduct ? submitUpdateProduct() : createProduct()"
-            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all flex items-center gap-2"
+            class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-600 hover:from-green-700 hover:to-green-700 text-white rounded-lg font-medium transition-all flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+              <path d="M3 16a1 1 0 001 1h12a1 1 0 001-1v-2a1 1 0 10-2 0v1H5v-1a1 1 0 10-2 0v2z" />
+              <path d="M7 9l3-3 3 3M10 6v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
             </svg>
+
             {{ editingProduct ? 'Update Product' : 'Upload Product' }}
           </button>
         </div>
@@ -367,10 +404,6 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-// import { useUserStore } from '~/stores/user'
-
-// const userStore = useUserStore()
-// const { token, role } = storeToRefs(userStore)
 
 // State
 const showUploadModal = ref(false);
@@ -381,34 +414,68 @@ const isLoading = ref(true);
 const newProduct = ref({
   productName: '',
   description: '',
-  date: '',
-  images: '',
-  possibleImages: '',
   priceCents: '',
   color: [],
   size: [],
   type: '',
   isOnSale: false,
-  category: ''
+  category: '',
+  imageUrl: '',
+  possibleImagesUrls: []
 });
+
+
+const imageInput = ref('')
+
+const possibleImagesInput = ref('')
+
+const addImage = () => {
+  const url = imageInput.value.trim()
+
+  if (!url) return
+
+  if (!newProduct.value.imageUrl.includes(url)) {
+    newProduct.value.imageUrl = url;
+  }
+
+  imageInput.value = ''
+}
+const addPossibleImages = () => {
+  const url = possibleImagesInput.value.trim()
+
+  if (!url) return
+
+  if (!newProduct.value.possibleImagesUrls.includes(url)) {
+    newProduct.value.possibleImagesUrls.push(url)
+  }
+
+  possibleImagesInput.value = ''
+}
+
+const removePossibleImages = (index) => {
+  newProduct.value.possibleImagesUrls.splice(index, 1)
+}
+const removeImage = () => {
+  newProduct.value.imageUrl = '';
+}
+
 
 const updateProductVar = ref({
   id: '',
   productName: '',
   description: '',
-  date: '',
-  images: '',
-  possibleImages: '',
   priceCents: '',
   color: [],
   size: [],
   type: '',
   isOnSale: false,
-  category: ''
+  category: '',
+  imageUrl: '',
+  possibleImagesUrls: []
 });
 
-const existingImages = ref([]);
-const existingPossibleImages = ref([]);
+const existingImageUrl = ref('');
+const existingPossibleImagesUrls = ref([]);
 const newImages = ref([]);
 const imagesPreviewUrls = ref([]);
 const colorInput = ref('');
@@ -445,15 +512,18 @@ const handleImage = (event) => {
 const removePreviewImage = (index) => {
   const removedUrl = imagesPreviewUrls.value[index];
   
-  const existingIndex = existingImages.value.indexOf(removedUrl);
-  const existingPossibleImagesIndex = existingPossibleImages.value.indexOf(removedUrl);
-  if (existingIndex !== -1) {
-    existingImages.value.split(',');
-  }
-  if (existingPossibleImagesIndex !== -1) {
-    existingPossibleImages.value.splice(existingPossibleImagesIndex, 1);
+  // Check if it's the main image
+  if (removedUrl === existingImageUrl.value) {
+    existingImageUrl.value = '';
   }
   
+  // Check if it's in possible images
+  const existingPossibleIndex = existingPossibleImagesUrls.value.indexOf(removedUrl);
+  if (existingPossibleIndex !== -1) {
+    existingPossibleImagesUrls.value.splice(existingPossibleIndex, 1);
+  }
+  
+  // Check if it's a new image
   const newIndex = newImages.value.findIndex(
     file => URL.createObjectURL(file) === removedUrl
   );
@@ -505,16 +575,14 @@ const createProduct = async () => {
     const formData = new FormData();
     formData.append('productName', newProduct.value.productName);
     formData.append('description', newProduct.value.description);
-    formData.append('date', newProduct.value.date);
-    formData.append('images', newProduct.value.images);
-    formData.append('possibleImages', newProduct.value.possibleImages);
     formData.append('priceCents', newProduct.value.priceCents);
-    formData.append('color', JSON.stringify(newProduct.value.color));
     formData.append('size', JSON.stringify(newProduct.value.size));
+    formData.append('color', JSON.stringify(newProduct.value.color));
     formData.append('type', newProduct.value.type);
-    formData.append('isOnSale', newProduct.value.isOnSale);
+    formData.append('isOnSale', newProduct.value.isOnSale ? '1' : '0');
     formData.append('category', newProduct.value.category);
 
+    // Add product images
     newImages.value.forEach(file => {
       formData.append('productImages[]', file);
     });
@@ -548,23 +616,22 @@ const openUpdateForm = (product) => {
   newProduct.value = {
     productName: product.productName,
     description: product.description,
-    date: product.date,
-    image: product.image,
-    possibleImages: product.possibleImages,
     priceCents: product.priceCents,
-    color: [...product.color],
-    size: [...product.size],
+    color: Array.isArray(product.color) ? [...product.color] : [],
+    size: Array.isArray(product.size) ? [...product.size] : [],
     type: product.type,
     isOnSale: product.isOnSale,
-    category: product.category
+    category: product.category,
+    imageUrl: product.imageUrl || '',
+    possibleImagesUrls: Array.isArray(product.possibleImagesUrls) ? [...product.possibleImagesUrls] : []
   };
 
-  existingImages.value = product.image
-  existingPossibleImages.value = product.possibleImages.map(
-    img => `https://api.stjosephtssnzuki.com/${img}`
-  );
+  existingImageUrl.value = product.imageUrl || '';
+  existingPossibleImagesUrls.value = Array.isArray(product.possibleImagesUrls) 
+    ? product.possibleImagesUrls.map(img => `https://api.stjosephtssnzuki.com/${img}`)
+    : [];
 
-  imagesPreviewUrls.value = [...existingImages.value];
+  imagesPreviewUrls.value = [existingImageUrl.value, ...existingPossibleImagesUrls.value].filter(Boolean);
   newImages.value = [];
 
   showUploadModal.value = true;
@@ -572,13 +639,16 @@ const openUpdateForm = (product) => {
 
 // Submit update
 const submitUpdateProduct = async () => {
+  const tokens = localStorage.getItem('token');
+  const roles = localStorage.getItem('role');
+
   try {
-    if (!token.value) {
+    if (!tokens) {
       alert('You are not logged in');
       return;
     }
 
-    if (!['admin'].includes(role.value)) {
+    if (!['admin'].includes(roles)) {
       alert('You are not allowed to update products');
       return;
     }
@@ -597,30 +667,31 @@ const submitUpdateProduct = async () => {
     formData.append('id', updateProductVar.value.id);
     formData.append('productName', newProduct.value.productName);
     formData.append('description', newProduct.value.description);
-    formData.append('date', newProduct.value.date);
-    formData.append('images', newProduct.value.images);
-    formData.append('possibleImages', newProduct.value.possibleImages);
     formData.append('priceCents', newProduct.value.priceCents);
-    formData.append('color', JSON.stringify(newProduct.value.color));
     formData.append('size', JSON.stringify(newProduct.value.size));
+    formData.append('color', JSON.stringify(newProduct.value.color));
     formData.append('type', newProduct.value.type);
-    formData.append('isOnSale', newProduct.value.isOnSale);
+    formData.append('isOnSale', newProduct.value.isOnSale ? '1' : '0');
     formData.append('category', newProduct.value.category);
 
+    // Add new images
     newImages.value.forEach(file => {
       formData.append('productImages[]', file);
     });
 
-    existingImages.value.forEach((img, index) => {
-      formData.append(`existingImages[${index}]`, img);
-    });
+    // Add existing images
+    if (existingImageUrl.value) {
+      formData.append('existingImageUrl', existingImageUrl.value);
+    }
+    
+    formData.append('existingPossibleImagesUrls', JSON.stringify(existingPossibleImagesUrls.value));
 
     const res = await $fetch(
       'https://api.stjosephtssnzuki.com/public/products/update-product.php',
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token.value}`
+          Authorization: `Bearer ${tokens}`
         },
         body: formData
       }
@@ -642,27 +713,23 @@ const submitUpdateProduct = async () => {
 // Fetch products
 const fetchProducts = async () => {
   const tokens = localStorage.getItem('token');
-  const roles = localStorage.getItem('role');
 
   try {
-    // // if (!tokens || tokens) {
-    //   alert('You are not allowed to get products');
-    // //   return;
-    // // }
-
-    // if (!['admin'].includes(roles) || ['admin'].includes(roles)) {
-    //   alert('You are not allowed to get products');
-    //   return;
-    // }
-
     const res = await $fetch('http://127.0.0.1:3658/m1/1155406-1148305-default/F/products', {
-    //   headers: {
-    //     Authorization: `Bearer ${tokens}`
-    //   }
+      headers: {
+        Authorization: `Bearer ${tokens}`
+      }
     });
-    console.log('res', res);
-
-    uploadedProducts.value = res;
+    
+    // Parse JSON fields if they come as strings
+    uploadedProducts.value = res.map(product => ({
+      ...product,
+      color: typeof product.color === 'string' ? JSON.parse(product.color) : product.color,
+      size: typeof product.size === 'string' ? JSON.parse(product.size) : product.size,
+      possibleImagesUrls: typeof product.possibleImagesUrls === 'string' 
+        ? JSON.parse(product.possibleImagesUrls) 
+        : product.possibleImagesUrls
+    }));
   } catch (error) {
     console.error('Error fetching products:', error);
     alert('Failed to fetch products. Please try again later.');
@@ -676,13 +743,16 @@ const deleteProduct = async (productId) => {
   const confirmDelete = confirm('Are you sure you want to delete this product?');
   if (!confirmDelete) return;
 
+  const tokens = localStorage.getItem('token');
+  const roles = localStorage.getItem('role');
+
   try {
-    if (!token.value) {
+    if (!tokens) {
       alert('You are not logged in');
       return;
     }
 
-    if (!['admin'].includes(role.value)) {
+    if (!['admin'].includes(roles)) {
       alert('You are not allowed to delete products');
       return;
     }
@@ -695,7 +765,7 @@ const deleteProduct = async (productId) => {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token.value}`
+          Authorization: `Bearer ${tokens}`
         },
         body: formData
       }
@@ -718,13 +788,16 @@ const releaseProduct = async (productId) => {
   const confirmRelease = confirm('Are you sure you want to release this product to the public?');
   if (!confirmRelease) return;
 
+  const tokens = localStorage.getItem('token');
+  const roles = localStorage.getItem('role');
+
   try {
-    if (!token.value) {
+    if (!tokens) {
       alert('You are not logged in');
       return;
     }
 
-    if (!['admin'].includes(role.value)) {
+    if (!['admin'].includes(roles)) {
       alert('You are not allowed to release products');
       return;
     }
@@ -737,7 +810,7 @@ const releaseProduct = async (productId) => {
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token.value}`
+          Authorization: `Bearer ${tokens}`
         },
         body: formData
       }
@@ -767,19 +840,18 @@ const resetForm = () => {
   newProduct.value = {
     productName: '',
     description: '',
-    date: '',
-    images: '',
-    possibleImages: '',
     priceCents: '',
     color: [],
     size: [],
     type: '',
     isOnSale: false,
-    category: ''
+    category: '',
+    imageUrl: '',
+    possibleImagesUrls: []
   };
   imagesPreviewUrls.value = [];
-  existingImages.value = [];
-  existingPossibleImages.value = [];
+  existingImageUrl.value = '';
+  existingPossibleImagesUrls.value = [];
   newImages.value = [];
   colorInput.value = '';
   sizeInput.value = '';
@@ -789,12 +861,6 @@ const resetForm = () => {
 const formatPrice = (cents) => {
   const dollars = (parseInt(cents) / 100).toFixed(2);
   return `${dollars}`;
-};
-
-// Format date
-const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
 // Handle image error
