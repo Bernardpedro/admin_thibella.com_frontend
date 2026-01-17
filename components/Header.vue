@@ -106,7 +106,7 @@
 
           <!-- User Account -->
           <NuxtLink 
-            to="/login"
+            to="/auth/login"
             class="flex items-center gap-2 p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800  transition-colors hidden sm:block"
             aria-label="User Account"
           >
@@ -210,7 +210,7 @@
           
           <!-- Mobile Account Link -->
           <NuxtLink 
-            to="/login"
+            to="/auth/login"
             @click="mobileMenuOpen = false"
             class="mt-3 py-3 px-2 flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
           >

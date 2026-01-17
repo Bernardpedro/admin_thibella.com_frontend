@@ -152,7 +152,10 @@
 
         <!-- Login Link -->
         <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
-          Already have an account? <a href="#" class="text-green-600 dark:text-green-400 font-semibold hover:underline">Login</a>
+          Already have an account? 
+          <NuxtLink to="/auth/login" class="text-green-600 dark:text-green-400 font-semibold hover:underline">
+            Login
+          </NuxtLink>
         </p>
       </form>
 
@@ -165,6 +168,7 @@
 </template>
 
 <script setup>
+import { NuxtLink } from '#components';
 import { ref, reactive } from 'vue'
 
 const loading = ref(false)
