@@ -292,7 +292,7 @@
                 <input type="text" v-model="newProduct.category" placeholder="Enter category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"/>
             </div>
 
-            <!-- <div class="md:col-span-2">
+            <div class="md:col-span-2">
               <label class="block text-gray-700 font-medium mb-2">Colors (comma-separated)</label>
               <input 
                 v-model="colorInput"
@@ -316,9 +316,9 @@
                   </button>
                 </span>
               </div>
-            </div> -->
+            </div> 
 
-            <div class="md:col-span-2">
+            <!-- <div class="md:col-span-2">
             <label class="block text-gray-700 font-medium mb-2">Colors</label>
 
             <div class="flex gap-2">
@@ -354,7 +354,7 @@
                 </button>
               </span>
             </div>
-            </div>
+            </div> -->
 
 
             <div class="md:col-span-2">

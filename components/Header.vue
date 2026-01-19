@@ -245,14 +245,6 @@ const menuItems = ref([
   {
     label: 'Products',
     path: '/products'
-  },
-  {
-    label: 'Orders',
-    path: '/orders'
-  },
-  {
-    label: 'Customers',
-    path: '/Customers'
   }
 ])
 
