@@ -192,11 +192,11 @@ const handleLogin = async () => {
       body: formData.value
     })
 
-    console.log('Login response:', res)
+    // console.log('Login response:', res)
     if (res.success) {
 
       alert(res.message);
-      console.log('role', res.role);
+      // console.log('role', res.role);
 
       localStorage.setItem('token', res.token );  
       localStorage.setItem('role', res.role ); 

@@ -292,7 +292,7 @@
                 <input type="text" v-model="newProduct.category" placeholder="Enter category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"/>
             </div>
 
-            <div class="md:col-span-2">
+            <!-- <div class="md:col-span-2">
               <label class="block text-gray-700 font-medium mb-2">Colors (comma-separated)</label>
               <input 
                 v-model="colorInput"
@@ -316,7 +316,46 @@
                   </button>
                 </span>
               </div>
+            </div> -->
+
+            <div class="md:col-span-2">
+            <label class="block text-gray-700 font-medium mb-2">Colors</label>
+
+            <div class="flex gap-2">
+              <input 
+                v-model="colorInput"
+                type="text"
+                placeholder="e.g. Red"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+
+              <button
+                type="button"
+                @click="addColor"
+                class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Add
+              </button>
             </div>
+
+            <div v-if="newProduct.color.length > 0" class="mt-2 flex flex-wrap gap-2">
+              <span
+                v-for="(color, index) in newProduct.color"
+                :key="index"
+                class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center gap-2"
+              >
+                {{ color }}
+                <button
+                  type="button"
+                  @click="removeColor(index)"
+                  class="text-blue-600 hover:text-blue-800"
+                >
+                  ×
+                </button>
+              </span>
+            </div>
+            </div>
+
 
             <div class="md:col-span-2">
               <label class="block text-gray-700 font-medium mb-2">Sizes (comma-separated)</label>
@@ -404,7 +443,7 @@ const newProduct = ref({
   possibleImagesUrls: []
 });
 
-
+// images
 const imageInput = ref('')
 
 const possibleImagesInput = ref('')
@@ -439,6 +478,27 @@ const removeImage = () => {
   newProduct.value.imageUrl = '';
 }
 
+// colors
+const colorInput = ref('')
+
+const addColor = () => {
+  const color = colorInput.value.trim()
+
+  if (!color) return
+
+  if (!newProduct.value.color.includes(color)) {
+    newProduct.value.color.push(color)
+    // console.log("new product color",newProduct.value.color)
+  }
+
+  colorInput.value = ''
+}
+
+const removeColor = (index) => {
+  newProduct.color.splice(index, 1)
+}
+
+
 
 const updateProductVar = ref({
   id: '',
@@ -458,17 +518,17 @@ const existingImageUrl = ref('');
 const existingPossibleImagesUrls = ref([]);
 const newImages = ref([]);
 const imagesPreviewUrls = ref([]);
-const colorInput = ref('');
+// const colorInput = ref('');
 const sizeInput = ref('');
 
 // Watch for color input
-watch(colorInput, (newValue) => {
-  if (newValue.includes(',')) {
-    const colors = newValue.split(',').map(c => c.trim()).filter(c => c);
-    newProduct.value.color = [...new Set([...newProduct.value.color, ...colors])];
-    colorInput.value = '';
-  }
-});
+// watch(colorInput, (newValue) => {
+//   if (newValue.includes(',')) {
+//     const colors = newValue.split(',').map(c => c.trim()).filter(c => c);
+//     newProduct.value.color = [...new Set([...newProduct.value.color, ...colors])];
+//     colorInput.value = '';
+//   }
+// });
 
 // Watch for size input
 watch(sizeInput, (newValue) => {
@@ -481,9 +541,9 @@ watch(sizeInput, (newValue) => {
   
 
 // Remove color
-const removeColor = (index) => {
-  newProduct.value.color.splice(index, 1);
-};
+// const removeColor = (index) => {
+//   newProduct.value.color.splice(index, 1);
+// };
 
 // Remove size
 const removeSize = (index) => {
@@ -538,7 +598,7 @@ const createProduct = async () => {
       body: formData
     });
 
-    console.log('Create product response:', res);
+    // console.log('Create product response:', res);
 
     if (res.success) {
       alert(res.message || 'Product created successfully!');
@@ -560,12 +620,21 @@ const fetchProducts = async () => {
   try {
     const res = await $fetch('http://localhost/thibellaApi/public/products/get-products.php', {
       headers: {
-        Authorization: `Bearer ${tokens}`
+        Authorization: `Bearer ${tokens}`,
+        "Content-Type": "application/json"
       }
     });
     
-    console.log('Fetched products:', res.data);
+    // console.log('Fetched products:', res.data);
     uploadedProducts.value = res.data || [];
+
+//     uploadedProducts.value = res.data.map(p => ({
+//   ...p,
+//   color: typeof p.color === 'string' ? JSON.parse(p.color) : p.color,
+//   sizes: typeof p.sizes === 'string' ? JSON.parse(p.sizes) : p.sizes
+// }));
+
+
   } catch (error) {
     console.error('Error fetching products:', error);
     alert('Failed to fetch products. Please try again later.');

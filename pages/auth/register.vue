@@ -259,7 +259,7 @@ const handleSubmit = async () => {
   }
 
   if (isValid) {
-    console.log('Form submitted:', formData)
+    // console.log('Form submitted:', formData)
     showSuccess.value = true
     
   try {
@@ -272,7 +272,7 @@ const handleSubmit = async () => {
       body: formData
     })
 
-    console.log('Register response:', res)
+    // console.log('Register response:', res)
 
     if (res.success) {
 
@@ -306,73 +306,6 @@ const handleSubmit = async () => {
     }, 3000)
   }
 }
-
-
-// const handleSubmit = async () => {
-//   // Clear previous messages
-//   clearErrors()
-
-//   // Validate passwords match
-//   if (formData.value.password !== confirmPassword.value) {
-//     errorMessage.value = 'Passwords do not match!'
-//     return
-//   }
-
-//   // Validate password length
-//   if (formData.value.password.length < 6) {
-//     errorMessage.value = 'Password must be at least 6 characters long'
-//     return
-//   }
-
-//   // Validate terms accepted
-//   if (!acceptTerms.value) {
-//     errorMessage.value = 'Please accept the Terms and Conditions'
-//     return
-//   }
-
-//   // Validate username
-//   if (formData.value.name.length < 4) {
-//     errorMessage.value = 'Username must be at least 4 characters long'
-//     return
-//   }
-
-//   loading.value = true
-
-//   try {
-//     // Prepare registration data
-//     const registrationData = {
-//       name: formData.value.name,
-//       email: formData.value.email,
-//       password: formData.value.password,
-//     }
-
-
-//     const res = await $fetch('https://api.stjosephtssnzuki.com/public/auth/register.php', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify(registrationData)
-//     })
-
-//     if (res.success) {
-
-//       alert(res.message);
-
-//       navigateTo('/auth/login');
-
-//     } else {
-//       // Registration failed
-//       errorMessage.value = data.error || 'Registration failed. Please try again.'
-//     }
-//   } catch (error) {
-//     console.error('Registration error:', error)
-
-//   } finally {
-//     loading.value = false
-//   }
-// }
-
 
 const handleSocialLogin = (provider) => {
   console.log(`Login with ${provider}`)
