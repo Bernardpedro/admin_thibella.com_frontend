@@ -494,9 +494,9 @@ const addColor = () => {
   colorInput.value = ''
 }
 
-const removeColor = (index) => {
-  newProduct.color.splice(index, 1)
-}
+// const removeColor = (index) => {
+//   newProduct.color.splice(index, 1)
+// }
 
 
 
@@ -522,13 +522,13 @@ const imagesPreviewUrls = ref([]);
 const sizeInput = ref('');
 
 // Watch for color input
-// watch(colorInput, (newValue) => {
-//   if (newValue.includes(',')) {
-//     const colors = newValue.split(',').map(c => c.trim()).filter(c => c);
-//     newProduct.value.color = [...new Set([...newProduct.value.color, ...colors])];
-//     colorInput.value = '';
-//   }
-// });
+watch(colorInput, (newValue) => {
+  if (newValue.includes(',')) {
+    const colors = newValue.split(',').map(c => c.trim()).filter(c => c);
+    newProduct.value.color = [...new Set([...newProduct.value.color, ...colors])];
+    colorInput.value = '';
+  }
+});
 
 // Watch for size input
 watch(sizeInput, (newValue) => {
@@ -541,9 +541,9 @@ watch(sizeInput, (newValue) => {
   
 
 // Remove color
-// const removeColor = (index) => {
-//   newProduct.value.color.splice(index, 1);
-// };
+const removeColor = (index) => {
+  newProduct.value.color.splice(index, 1);
+};
 
 // Remove size
 const removeSize = (index) => {

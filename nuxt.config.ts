@@ -1,8 +1,13 @@
 export default defineNuxtConfig({  
+      // ssr: true,
+      ssr: false,
   nitro: {
-    preset: 'static'
+    preset: 'static',
+        prerender: {
+      routes: []
+    }
   },
-    
+
     runtimeConfig: {
       public: {
         // API_URL: process.env.BASE_URL,
