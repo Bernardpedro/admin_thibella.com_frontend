@@ -590,7 +590,7 @@ const createProduct = async () => {
     formData.append('imageUrl', newProduct.value.imageUrl);
     formData.append('possibleImagesUrls', JSON.stringify(newProduct.value.possibleImagesUrls));
 
-    const res = await $fetch('http://localhost/thibellaApi/public/products/add-product.php', {
+    const res = await $fetch('https://api.thibella.com/public/products/add-product.php', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${tokens}`,
@@ -618,7 +618,7 @@ const fetchProducts = async () => {
   const tokens = localStorage.getItem('token');
 
   try {
-    const res = await $fetch('http://localhost/thibellaApi/public/products/get-products.php', {
+    const res = await $fetch('https://api.thibella.com/public/products/get-products.php', {
       headers: {
         Authorization: `Bearer ${tokens}`,
         "Content-Type": "application/json"

@@ -184,7 +184,7 @@ const handleLogin = async () => {
 
   try {
 
-    const res = await $fetch('http://localhost/thibellaApi/auth/login.php', {
+    const res = await $fetch('https://api.thibella.com/public/auth/login.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
